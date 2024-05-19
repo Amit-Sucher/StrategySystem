@@ -1,32 +1,51 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
-import Tabletop from "tabletop";
-
+import Papa from 'papaparse';
 
 function App() {
+    const [data, setData] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const publicSpreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv';
+            Papa.parse(publicSpreadsheetUrl, {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    setData(results.data);
+                },
+                error: function(error) {
+                    console.warn('Error fetching data from Google Sheets', error);
+                }
+            });
+        };
+
+        fetchData();
+    }, []);
+
     return (
         <div>
             <svg width={1920} height={1000}>
                 <g>
-                    {rectangleMaker(500, 250, 30, 100, "#bcd5f7", "blue1")}
-                    {rectangleMaker(500, 250, 30, 400, "#f7bcbc", "red1")}
-                    {rectangleMaker(500, 250, 600, 100, "#bcd5f7", "blue2")}
-                    {rectangleMaker(500, 250, 600, 400, "#f7bcbc", "red2")}
-                    {rectangleMaker(500, 250, 1170, 100, "#bcd5f7", "blue3")}
-                    {rectangleMaker(500, 250, 1170, 400, "#f7bcbc", "red3")}
-                    {rectangleMakerGray(1640, 250, 30, 700, "#e3e2e2", "general")}
+                    {rectangleMaker(500, 250, 30, 100, "#bcd5f7", "blue1", data)}
+                    {rectangleMaker(500, 250, 30, 400, "#f7bcbc", "red1", data)}
+                    {rectangleMaker(500, 250, 600, 100, "#bcd5f7", "blue2", data)}
+                    {rectangleMaker(500, 250, 600, 400, "#f7bcbc", "red2", data)}
+                    {rectangleMaker(500, 250, 1170, 100, "#bcd5f7", "blue3", data)}
+                    {rectangleMaker(500, 250, 1170, 400, "#f7bcbc", "red3", data)}
+                    {rectangleMakerGray(1640, 250, 30, 700, "#e3e2e2", "general", data)}
                 </g>
             </svg>
         </div>
     );
 }
 
-function rectangleMaker(width, height, x, y, color, id) {
+function rectangleMaker(width, height, x, y, color, id, data) {
     return (
         <svg key={id} width={1920} height={1000}>
-            <rect width={width} height={height} x={x} y={y} rx="20" ry="20" fill={color}/>
+            <rect width={width} height={height} x={x} y={y} rx="20" ry="20" fill={color} />
             <foreignObject x={x + 10} y={y + 10} width="50" height="30">
-                <input type="text" id={id} name={id} className="rounded-input"/>
+                <input type="text" id={id} name={id} className="rounded-input" />
             </foreignObject>
             <foreignObject x={x + 390} y={y - 15} width="90" height="1000">
                 <h2>Auto:</h2>
@@ -37,7 +56,7 @@ function rectangleMaker(width, height, x, y, color, id) {
             <foreignObject x={x + 270} y={y + 20} width="90" height="1000">
                 <h4>Speaker:</h4>
             </foreignObject>
-            <line x1={x} y1={y + 75} x2={x + width} y2={y + 75} stroke="black" strokeWidth="2"/>
+            <line x1={x} y1={y + 75} x2={x + width} y2={y + 75} stroke="black" strokeWidth="2" />
             <foreignObject x={x + 390} y={y + 60} width="90" height="1000">
                 <h2>Speaker:</h2>
             </foreignObject>
@@ -54,10 +73,10 @@ function rectangleMaker(width, height, x, y, color, id) {
     );
 }
 
-function rectangleMakerGray(width, height, x, y, color, id) {
+function rectangleMakerGray(width, height, x, y, color, id, data) {
     return (
         <svg key={id} width={1920} height={1000}>
-            <rect width={width} height={height} x={x} y={y} rx="20" ry="20" fill={color}/>
+            <rect width={width} height={height} x={x} y={y} rx="20" ry="20" fill={color} />
             <foreignObject x={x + 390} y={y - 15} width="90" height="1000">
                 <h2>כחול:</h2>
             </foreignObject>
@@ -67,7 +86,7 @@ function rectangleMakerGray(width, height, x, y, color, id) {
             <foreignObject x={x + 270} y={y + 20} width="90" height="1000">
                 <h4>Speaker:</h4>
             </foreignObject>
-            <line x1={x} y1={y + 75} x2={x + width} y2={y + 75} stroke="black" strokeWidth="2"/>
+            <line x1={x} y1={y + 75} x2={x + width} y2={y + 75} stroke="black" strokeWidth="2" />
             <foreignObject x={x + 390} y={y + 60} width="90" height="1000">
                 <h2>Speaker:</h2>
             </foreignObject>
@@ -83,6 +102,5 @@ function rectangleMakerGray(width, height, x, y, color, id) {
         </svg>
     );
 }
-
 
 export default App;
