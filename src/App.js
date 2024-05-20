@@ -5,7 +5,23 @@ import Papa from 'papaparse';
 function App() {
     const [data, setData] = useState([]);
 
+    useEffect(() => {
+        const fetchData = async () => {
+            const publicSpreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv';
+            Papa.parse(publicSpreadsheetUrl, {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    setData(results.data);
+                },
+                error: function(error) {
+                    console.warn('Error fetching data from Google Sheets', error);
+                }
+            });
+        };
 
+        fetchData();
+    }, []);
 
     return (
         <div>
@@ -72,7 +88,7 @@ function rectangleMakerGray(width, height, x, y, color, id, data) {
             </foreignObject>
             <line x1={x} y1={y + 75} x2={x + width} y2={y + 75} stroke="black" strokeWidth="2" />
             <foreignObject x={x + 390} y={y + 60} width="90" height="1000">
-                <h2>Teleop:</h2>
+                <h2>Speaker:</h2>
             </foreignObject>
             <foreignObject x={x + 390} y={y + 95} width="90" height="1000">
                 <h4>Amp:</h4>
