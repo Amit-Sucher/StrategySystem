@@ -12,6 +12,7 @@ function App() {
                 download: true,
                 header: true,
                 complete: function(results) {
+                    console.log('Fetched data:', results.data); // Console log to verify data fetching
                     setData(results.data);
                 },
                 error: function(error) {
