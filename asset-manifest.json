@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Amit-Sucher/StrategySystem/static/css/main.8d6eba2c.css",
+    "main.js": "/Amit-Sucher/StrategySystem/static/js/main.14ee014e.js",
+    "static/js/453.edb77b64.chunk.js": "/Amit-Sucher/StrategySystem/static/js/453.edb77b64.chunk.js",
+    "index.html": "/Amit-Sucher/StrategySystem/index.html",
+    "main.8d6eba2c.css.map": "/Amit-Sucher/StrategySystem/static/css/main.8d6eba2c.css.map",
+    "main.14ee014e.js.map": "/Amit-Sucher/StrategySystem/static/js/main.14ee014e.js.map",
+    "453.edb77b64.chunk.js.map": "/Amit-Sucher/StrategySystem/static/js/453.edb77b64.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8d6eba2c.css",
+    "static/js/main.14ee014e.js"
+  ]
+}
