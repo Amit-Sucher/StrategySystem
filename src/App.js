@@ -54,9 +54,9 @@ function rectangleMaker(width, height, x, y, color, id, data, teamNumbers, handl
     const teamData = data.find(row => row['A'] === teamNumber); // Assume 'A' is the column name for team numbers
 
     // Display data for specific labels
-    const ampData = teamData ? teamData['Amp'] : ''; // Replace 'Amp' with the actual column name
-    const speakerData = teamData ? teamData['Speaker'] : ''; // Replace 'Speaker' with the actual column name
-    const pinsData = teamData ? teamData['Pins'] : ''; // Replace 'Pins' with the actual column name
+    const ampData = teamData ? teamData['Team'] : ''; // Replace 'Amp' with the actual column name
+    const speakerData = teamData ? teamData['Alliance'] : ''; // Replace 'Speaker' with the actual column name
+    const pinsData = teamData ? teamData['TeleopNotes'] : ''; // Replace 'Pins' with the actual column name
 
     return (
         <svg key={id} width={1920} height={1000}>
