@@ -4,7 +4,8 @@ import Papa from 'papaparse';
 
 function App() {
     const [data, setData] = useState([]);
-    const [teamNumbers, setTeamNumbers] = useState({});
+    const [teamNumber, setTeamNumber] = useState('');
+    const [teamData, setTeamData] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -25,20 +26,28 @@ function App() {
         fetchData();
     }, []);
 
-    const handleInputChange = (event, id) => {
-        setTeamNumbers({
-            ...teamNumbers,
-            [id]: event.target.value
-        });
+    const handleInputChange = (event) => {
+        const input = event.target.value;
+        setTeamNumber(input);
+        
+        const foundTeam = data.find(row => row['Team Number'] === input); // Replace 'Team Number' with the actual column name in your CSV
+        setTeamData(foundTeam);
     };
 
     return (
         <div>
-            <svg width={1920} height={1000}>
-                <g>
-                    {/* You can start adding your new showcase elements here */}
-                </g>
-            </svg>
+            <input 
+                type="text" 
+                value={teamNumber} 
+                onChange={handleInputChange} 
+                placeholder="Enter team number"
+            />
+            {teamData && (
+                <div>
+                    <h2>Auto notes: {teamData['A']}</h2> {/* Replace 'A' with the actual column name */}
+                    <h2>Notes overall: {teamData['B']}</h2> {/* Replace 'B' with the actual column name */}
+                </div>
+            )}
         </div>
     );
 }
