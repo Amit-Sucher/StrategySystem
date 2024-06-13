@@ -30,22 +30,24 @@ function App() {
         const input = event.target.value;
         setTeamNumber(input);
         
-        const foundTeam = data.find(row => row['Team Number'] === input); // Replace 'Team Number' with the actual column name in your CSV
+        const foundTeam = data.find(row => row['Team'] === input); // Replace 'Team' with the actual column name in your CSV
+        console.log('Found team data:', foundTeam);
         setTeamData(foundTeam);
     };
 
     return (
-        <div>
+        <div className="app-container">
             <input 
                 type="text" 
                 value={teamNumber} 
                 onChange={handleInputChange} 
                 placeholder="Enter team number"
+                className="input-box"
             />
             {teamData && (
-                <div>
-                    <h2>Auto notes: {teamData['A']}</h2> {/* Replace 'A' with the actual column name */}
-                    <h2>Notes overall: {teamData['B']}</h2> {/* Replace 'B' with the actual column name */}
+                <div className="team-data-container">
+                    <h2>Auto notes: {teamData['Auto Notes']}</h2> {/* Replace 'Auto NotesB' with the actual column name */}
+                    <h2>Notes overall: {teamData['Notes']}</h2> {/* Replace 'Notes' with the actual column name */}
                 </div>
             )}
         </div>
