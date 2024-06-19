@@ -5,6 +5,8 @@
   justify-content: center;
   height: 100vh;
   text-align: center;
+  background-color: #012265; /* Change this to your desired background color */
+
 }
 
 .input-row {
@@ -18,7 +20,7 @@
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
-  background-color: #f9f9f9;
+  background-color: #d4af37;
   width: 300px;
   text-align: center;
 }
@@ -31,6 +33,13 @@
   border-radius: 5px;
   width: 300px;
   text-align: center;
+  background-color: #1D1A31;
+  color: white;
+}
+
+.input-box::placeholder{
+  color: white;
+  opacity: 0.6;
 }
 
 .team-data-container {
