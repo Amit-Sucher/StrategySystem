@@ -47,7 +47,7 @@ function App() {
 
     return (
         <div className="app-container">
-            <div className="input-row">
+            <div className="input-row top-row">
                 {Array.from({ length: 3 }).map((_, index) => (
                     <div key={index} className="input-container">
                         <input 
@@ -55,7 +55,7 @@ function App() {
                             value={teamNumbers[index]} 
                             onChange={(event) => handleInputChange(index, event)} 
                             placeholder={`Enter team number ${index + 1}`}
-                            className="input-box"
+                            className="input-box top-input"
                         />
                         {teamData[index] && (
                             <div className="team-data-container">
@@ -66,7 +66,7 @@ function App() {
                     </div>
                 ))}
             </div>
-            <div className="input-row">
+            <div className="input-row bottom-row">
                 {Array.from({ length: 3 }).map((_, index) => (
                     <div key={index + 3} className="input-container">
                         <input 
@@ -74,7 +74,7 @@ function App() {
                             value={teamNumbers[index + 3]} 
                             onChange={(event) => handleInputChange(index + 3, event)} 
                             placeholder={`Enter team number ${index + 4}`}
-                            className="input-box"
+                            className="input-box bottom-input"
                         />
                         {teamData[index + 3] && (
                             <div className="team-data-container">
