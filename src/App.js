@@ -57,48 +57,38 @@ function App() {
                         />
                         {teamData[index] && (
                             <div className="team-data-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th colSpan="2">General</th>
-                                            <th colSpan="2">Endgame</th>
-                                            <th colSpan="2">Autonomous</th>
-                                            <th colSpan="2">Match Play</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Pins</td>
-                                            <td>{teamData[index]['AMP AUTO']}</td>
-                                            <td>Trap?</td>
-                                            <td>{teamData[index]['SPEAKER AUTO']}</td>
-                                            <td>Exit</td>
-                                            <td>{teamData[index]['mid notes']}</td>
-                                            <td>Speaker</td>
-                                            <td>{teamData[index]['tele AMP']}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Under Chain</td>
-                                            <td>{teamData[index]['Missed AMP']}</td>
-                                            <td>Tele AMP</td>
-                                            <td>{teamData[index]['tele Speaker']}</td>
-                                            <td>Missed AMP</td>
-                                            <td>{teamData[index]['tele Missed Speaker']}</td>
-                                            <td>Tele Speaker</td>
-                                            <td>{teamData[index]['Defensive Pins']}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Tele Missed Speaker</td>
-                                            <td>{teamData[index]['Shot to Trap']}</td>
-                                            <td>Defensive Pins</td>
-                                            <td>{teamData[index]['Under Chain']}</td>
-                                            <td>Shot to Trap</td>
-                                            <td>{teamData[index]['Long Shot']}</td>
-                                            <td>Long Shot</td>
-                                            <td>{teamData[index]['Long Shot']}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div className="team-header">Team {teamNumbers[index]}</div>
+                                <div className="section-header">Auto</div>
+                                <div className="grid-container">
+                                    <div className="grid-item">AMP AUTO</div>
+                                    <div className="grid-item">{teamData[index]['AMP AUTO']}</div>
+                                    <div className="grid-item">SPEAKER AUTO</div>
+                                    <div className="grid-item">{teamData[index]['SPEAKER AUTO']}</div>
+                                    <div className="grid-item">mid notes</div>
+                                    <div className="grid-item">{teamData[index]['mid notes']}</div>
+                                </div>
+                                <div className="section-header">Teleop</div>
+                                <div className="grid-container">
+                                    <div className="grid-item">tele AMP</div>
+                                    <div className="grid-item">{teamData[index]['tele AMP']}</div>
+                                    <div className="grid-item">Missed AMP</div>
+                                    <div className="grid-item">{teamData[index]['Missed AMP']}</div>
+                                    <div className="grid-item">tele Speaker</div>
+                                    <div className="grid-item">{teamData[index]['tele Speaker']}</div>
+                                    <div className="grid-item">tele Missed Speaker</div>
+                                    <div className="grid-item">{teamData[index]['tele Missed Speaker']}</div>
+                                    <div className="grid-item">Defensive Pins</div>
+                                    <div className="grid-item">{teamData[index]['Defensive Pins']}</div>
+                                </div>
+                                <div className="section-header">General</div>
+                                <div className="grid-container">
+                                    <div className="grid-item">Shot to Trap</div>
+                                    <div className="grid-item">{teamData[index]['Shot to Trap']}</div>
+                                    <div className="grid-item">Under Chain</div>
+                                    <div className="grid-item">{teamData[index]['Under Chain']}</div>
+                                    <div className="grid-item">Long Shot</div>
+                                    <div className="grid-item">{teamData[index]['Long Shot']}</div>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -116,48 +106,38 @@ function App() {
                         />
                         {teamData[index + 3] && (
                             <div className="team-data-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th colSpan="2">General</th>
-                                            <th colSpan="2">Endgame</th>
-                                            <th colSpan="2">Autonomous</th>
-                                            <th colSpan="2">Match Play</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Pins</td>
-                                            <td>{teamData[index + 3]['AMP AUTO']}</td>
-                                            <td>Trap?</td>
-                                            <td>{teamData[index + 3]['SPEAKER AUTO']}</td>
-                                            <td>Exit</td>
-                                            <td>{teamData[index + 3]['mid notes']}</td>
-                                            <td>Speaker</td>
-                                            <td>{teamData[index + 3]['tele AMP']}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Under Chain</td>
-                                            <td>{teamData[index + 3]['Missed AMP']}</td>
-                                            <td>Tele AMP</td>
-                                            <td>{teamData[index + 3]['tele Speaker']}</td>
-                                            <td>Missed AMP</td>
-                                            <td>{teamData[index + 3]['tele Missed Speaker']}</td>
-                                            <td>Tele Speaker</td>
-                                            <td>{teamData[index + 3]['Defensive Pins']}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Tele Missed Speaker</td>
-                                            <td>{teamData[index + 3]['Shot to Trap']}</td>
-                                            <td>Defensive Pins</td>
-                                            <td>{teamData[index + 3]['Under Chain']}</td>
-                                            <td>Shot to Trap</td>
-                                            <td>{teamData[index + 3]['Long Shot']}</td>
-                                            <td>Long Shot</td>
-                                            <td>{teamData[index + 3]['Long Shot']}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div className="team-header">Team {teamNumbers[index + 3]}</div>
+                                <div className="section-header">Auto</div>
+                                <div className="grid-container">
+                                    <div className="grid-item">AMP AUTO</div>
+                                    <div className="grid-item">{teamData[index + 3]['AMP AUTO']}</div>
+                                    <div className="grid-item">SPEAKER AUTO</div>
+                                    <div className="grid-item">{teamData[index + 3]['SPEAKER AUTO']}</div>
+                                    <div className="grid-item">mid notes</div>
+                                    <div className="grid-item">{teamData[index + 3]['mid notes']}</div>
+                                </div>
+                                <div className="section-header">Teleop</div>
+                                <div className="grid-container">
+                                    <div className="grid-item">tele AMP</div>
+                                    <div className="grid-item">{teamData[index + 3]['tele AMP']}</div>
+                                    <div className="grid-item">Missed AMP</div>
+                                    <div className="grid-item">{teamData[index + 3]['Missed AMP']}</div>
+                                    <div className="grid-item">tele Speaker</div>
+                                    <div className="grid-item">{teamData[index + 3]['tele Speaker']}</div>
+                                    <div className="grid-item">tele Missed Speaker</div>
+                                    <div className="grid-item">{teamData[index + 3]['tele Missed Speaker']}</div>
+                                    <div className="grid-item">Defensive Pins</div>
+                                    <div className="grid-item">{teamData[index + 3]['Defensive Pins']}</div>
+                                </div>
+                                <div className="section-header">General</div>
+                                <div className="grid-container">
+                                    <div className="grid-item">Shot to Trap</div>
+                                    <div className="grid-item">{teamData[index + 3]['Shot to Trap']}</div>
+                                    <div className="grid-item">Under Chain</div>
+                                    <div className="grid-item">{teamData[index + 3]['Under Chain']}</div>
+                                    <div className="grid-item">Long Shot</div>
+                                    <div className="grid-item">{teamData[index + 3]['Long Shot']}</div>
+                                </div>
                             </div>
                         )}
                     </div>
