@@ -13,7 +13,7 @@ function App() {
             download: true,
             header: true,
             complete: function(results) {
-                console.log('Fetched data:', results.data); // Console log to verify data fetching
+                console.log('Fetched data:', results.data);
                 setData(results.data);
             },
             error: function(error) {
@@ -25,10 +25,8 @@ function App() {
     useEffect(() => {
         fetchData();
 
-        // Set up a periodic fetch every 10 seconds (10000 milliseconds)
         const intervalId = setInterval(fetchData, 10000);
 
-        // Clean up the interval on component unmount
         return () => clearInterval(intervalId);
     }, []);
 
@@ -37,8 +35,8 @@ function App() {
         const newTeamNumbers = [...teamNumbers];
         newTeamNumbers[index] = input;
         setTeamNumbers(newTeamNumbers);
-        
-        const foundTeam = data.find(row => row['Team'] === input); // Replace 'Team' with the actual column name in your CSV
+
+        const foundTeam = data.find(row => row['Teams'] === input);
         const newTeamData = [...teamData];
         newTeamData[index] = foundTeam;
         setTeamData(newTeamData);
@@ -47,39 +45,119 @@ function App() {
 
     return (
         <div className="app-container">
-            <div className="input-row top-row">
+            <div className="input-row">
                 {Array.from({ length: 3 }).map((_, index) => (
                     <div key={index} className="input-container">
-                        <input 
-                            type="text" 
-                            value={teamNumbers[index]} 
-                            onChange={(event) => handleInputChange(index, event)} 
+                        <input
+                            type="text"
+                            value={teamNumbers[index]}
+                            onChange={(event) => handleInputChange(index, event)}
                             placeholder={`Enter team number ${index + 1}`}
                             className="input-box top-input"
                         />
                         {teamData[index] && (
                             <div className="team-data-container">
-                                <h2>Auto notes: {teamData[index]['Auto Notes']}</h2> {/* Replace 'Auto Notes' with the actual column name */}
-                                <h2>Notes overall: {teamData[index]['Notes']}</h2> {/* Replace 'Notes' with the actual column name */}
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th colSpan="2">General</th>
+                                            <th colSpan="2">Endgame</th>
+                                            <th colSpan="2">Autonomous</th>
+                                            <th colSpan="2">Match Play</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Pins</td>
+                                            <td>{teamData[index]['AMP AUTO']}</td>
+                                            <td>Trap?</td>
+                                            <td>{teamData[index]['SPEAKER AUTO']}</td>
+                                            <td>Exit</td>
+                                            <td>{teamData[index]['mid notes']}</td>
+                                            <td>Speaker</td>
+                                            <td>{teamData[index]['tele AMP']}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Under Chain</td>
+                                            <td>{teamData[index]['Missed AMP']}</td>
+                                            <td>Tele AMP</td>
+                                            <td>{teamData[index]['tele Speaker']}</td>
+                                            <td>Missed AMP</td>
+                                            <td>{teamData[index]['tele Missed Speaker']}</td>
+                                            <td>Tele Speaker</td>
+                                            <td>{teamData[index]['Defensive Pins']}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Tele Missed Speaker</td>
+                                            <td>{teamData[index]['Shot to Trap']}</td>
+                                            <td>Defensive Pins</td>
+                                            <td>{teamData[index]['Under Chain']}</td>
+                                            <td>Shot to Trap</td>
+                                            <td>{teamData[index]['Long Shot']}</td>
+                                            <td>Long Shot</td>
+                                            <td>{teamData[index]['Long Shot']}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         )}
                     </div>
                 ))}
             </div>
-            <div className="input-row bottom-row">
+            <div className="input-row">
                 {Array.from({ length: 3 }).map((_, index) => (
                     <div key={index + 3} className="input-container">
-                        <input 
-                            type="text" 
-                            value={teamNumbers[index + 3]} 
-                            onChange={(event) => handleInputChange(index + 3, event)} 
+                        <input
+                            type="text"
+                            value={teamNumbers[index + 3]}
+                            onChange={(event) => handleInputChange(index + 3, event)}
                             placeholder={`Enter team number ${index + 4}`}
                             className="input-box bottom-input"
                         />
                         {teamData[index + 3] && (
                             <div className="team-data-container">
-                                <h2>Auto notes: {teamData[index + 3]['Auto Notes']}</h2> {/* Replace 'Auto Notes' with the actual column name */}
-                                <h2>Notes overall: {teamData[index + 3]['Notes']}</h2> {/* Replace 'Notes' with the actual column name */}
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th colSpan="2">General</th>
+                                            <th colSpan="2">Endgame</th>
+                                            <th colSpan="2">Autonomous</th>
+                                            <th colSpan="2">Match Play</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Pins</td>
+                                            <td>{teamData[index + 3]['AMP AUTO']}</td>
+                                            <td>Trap?</td>
+                                            <td>{teamData[index + 3]['SPEAKER AUTO']}</td>
+                                            <td>Exit</td>
+                                            <td>{teamData[index + 3]['mid notes']}</td>
+                                            <td>Speaker</td>
+                                            <td>{teamData[index + 3]['tele AMP']}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Under Chain</td>
+                                            <td>{teamData[index + 3]['Missed AMP']}</td>
+                                            <td>Tele AMP</td>
+                                            <td>{teamData[index + 3]['tele Speaker']}</td>
+                                            <td>Missed AMP</td>
+                                            <td>{teamData[index + 3]['tele Missed Speaker']}</td>
+                                            <td>Tele Speaker</td>
+                                            <td>{teamData[index + 3]['Defensive Pins']}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Tele Missed Speaker</td>
+                                            <td>{teamData[index + 3]['Shot to Trap']}</td>
+                                            <td>Defensive Pins</td>
+                                            <td>{teamData[index + 3]['Under Chain']}</td>
+                                            <td>Shot to Trap</td>
+                                            <td>{teamData[index + 3]['Long Shot']}</td>
+                                            <td>Long Shot</td>
+                                            <td>{teamData[index + 3]['Long Shot']}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         )}
                     </div>
