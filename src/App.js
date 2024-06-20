@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import Papa from 'papaparse';
+import ImageWithDots from './ImageWithDots.js';
+
+
 
 function App() {
     const [data, setData] = useState([]);
     const [teamNumbers, setTeamNumbers] = useState(Array(6).fill(''));
     const [teamData, setTeamData] = useState(Array(6).fill(null));
+    const [coordinates, setCoordinates] = useState([{ x: 3, y: 9 }, { x: 1, y: 7 }]);
 
     const fetchData = async () => {
         const publicSpreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv';
@@ -91,9 +95,12 @@ function App() {
                     )}
                 </div>
             ))}
+            <ImageWithDots
+                imageSrc="frcfieldNoBG.png"
+                coordinates={coordinates}
+            />
         </div>
     );
 }
 
 export default App;
-//for commit reasons
