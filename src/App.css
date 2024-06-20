@@ -1,37 +1,34 @@
 .app-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
   justify-content: center;
   height: 100vh;
   text-align: center;
   background-color: #012265;
-  overflow: auto; /* Added to allow scrolling if content overflows */
-}
-
-.input-row {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
+  overflow: hidden;
+  padding: 5px;
 }
 
 .input-container {
-  margin: 10px;
-  padding: 10px;
+  margin: 3px;  /* Reduced margin */
+  padding: 3px;  /* Reduced padding */
   border: 1px solid #ddd;
   border-radius: 5px;
   background-color: #d4af37;
-  width: 300px;
+  width: 32%;  /* Adjusted width to fit 3 per row */
   text-align: center;
+  box-sizing: border-box;
 }
 
 .input-box {
-  padding: 10px;
-  margin-bottom: 10px;
-  font-size: 16px;
+  padding: 3px;  /* Reduced padding */
+  margin-bottom: 3px;  /* Reduced margin */
+  font-size: 12px;  /* Reduced font size */
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: 280px;
+  width: 90%;
   text-align: center;
   background-color: white;
   color: white;
@@ -54,29 +51,26 @@
   text-align: center;
   background-color: #d4af37;
   border-radius: 5px;
-  padding: 10px;
-  margin-top: 10px;
-}
-
-.team-header {
-  font-weight: bold;
-  margin-bottom: 10px;
+  padding: 3px;  /* Reduced padding */
+  margin-top: 0;  /* Removed margin */
 }
 
 .section-header {
   font-weight: bold;
-  margin-top: 10px;
-  margin-bottom: 5px;
+  margin-top: 3px;  /* Reduced margin */
+  margin-bottom: 3px;  /* Reduced margin */
+  font-size: 12px;  /* Reduced font size */
 }
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Two columns */
-  gap: 5px;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;  /* Reduced gap */
 }
 
 .grid-item {
   border: 1px solid #ddd;
-  padding: 5px;
+  padding: 1px;  /* Reduced padding */
   background-color: #f2f2f2;
+  font-size: 12px;  /* Reduced font size */
 }
