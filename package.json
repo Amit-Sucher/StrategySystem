@@ -1,14 +1,14 @@
 {
   "name": "strategy-system",
   "version": "0.1.0",
-  "homepage":"https://amit-sucher.github.io/StrategySystem",
-
+  "homepage": "https://amit-sucher.github.io/StrategySystem",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.6.8",
+    "heatmap.js": "^2.0.5",
     "papaparse": "^5.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

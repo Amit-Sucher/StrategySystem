@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './App.css';
 import Papa from 'papaparse';
-import ImageWithDots from './ImageWithDots.js';
-
-
+import h337 from 'heatmap.js';
 
 function App() {
     const [data, setData] = useState([]);
     const [teamNumbers, setTeamNumbers] = useState(Array(6).fill(''));
     const [teamData, setTeamData] = useState(Array(6).fill(null));
-    const [coordinates, setCoordinates] = useState([{ x: 3, y: 9 }, { x: 1, y: 7 }]);
+    const heatmapContainerRef = useRef(null);
 
     const fetchData = async () => {
         const publicSpreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv';
@@ -45,6 +43,56 @@ function App() {
         newTeamData[index] = foundTeam;
         setTeamData(newTeamData);
         console.log(`Found team data for input ${index + 1}:`, foundTeam);
+
+        if (foundTeam && foundTeam.map) {
+            try {
+                const parsedMapData = parseMapData(foundTeam.map);
+                updateHeatmap(parsedMapData);
+            } catch (error) {
+                console.error('Error parsing map data:', error);
+            }
+        }
+    };
+
+    const parseMapData = (mapString) => {
+        const coordinatePairs = mapString.match(/\(\d+,\d+\)/g);
+        if (!coordinatePairs) throw new Error('Invalid map data format');
+
+        return coordinatePairs.map(pair => {
+            const [x, y] = pair.slice(1, -1).split(',').map(Number);
+            return { x, y };
+        });
+    };
+
+    const updateHeatmap = (mapData) => {
+        if (!heatmapContainerRef.current) return;
+
+        const heatmapInstance = h337.create({
+            container: heatmapContainerRef.current,
+            radius: 50
+        });
+
+        const fieldWidth = 10;
+        const fieldHeight = 10;
+        const imageWidth = 1000;
+        const imageHeight = 500;
+
+        const mapCoordinatesToImage = (fieldCoords, imgWidth, imgHeight, fieldWidth, fieldHeight) => {
+            return fieldCoords.map(coord => ({
+                x: (coord.x / fieldWidth) * imgWidth,
+                y: (coord.y / fieldHeight) * imgHeight,
+                value: 1
+            }));
+        };
+
+        const imageCoordinates = mapCoordinatesToImage(mapData, imageWidth, imageHeight, fieldWidth, fieldHeight);
+
+        const data = {
+            max: 5,
+            data: imageCoordinates
+        };
+
+        heatmapInstance.setData(data);
     };
 
     return (
@@ -95,10 +143,9 @@ function App() {
                     )}
                 </div>
             ))}
-            <ImageWithDots
-                imageSrc="frcfieldNoBG.png"
-                coordinates={coordinates}
-            />
+            <div id="heatmapContainer" ref={heatmapContainerRef} style={{ position: 'relative', width: '1000px', height: '500px', marginTop: '20px' }}>
+                <img src="frcfieldNoBG.png" alt="FRC Field" style={{ width: '100%', height: '100%' }} />
+            </div>
         </div>
     );
 }
