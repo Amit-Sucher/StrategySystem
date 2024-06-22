@@ -72,9 +72,9 @@ function App() {
         newTeamNumbers[index] = input;
         setTeamNumbers(newTeamNumbers);
 
-        const newTeamData = data.map(row => newTeamNumbers.includes(row['Teams']) ? row : null);
+        const newTeamData = newTeamNumbers.map(number => data.find(row => row['Teams'] === number) || null);
         setTeamData(newTeamData);
-        updateHeatmap(newTeamData.filter(Boolean));
+        updateHeatmap(newTeamData.filter(team => team && team.map));
     };
 
     const parseMapData = (mapString) => {
@@ -104,7 +104,7 @@ function App() {
         };
 
         const imageCoordinates = teamsData.reduce((acc, team) => {
-            if (team && team.map) {
+            if (team.map) {
                 const coords = parseMapData(team.map);
                 acc.push(...mapCoordinatesToImage(coords, imageWidth, imageHeight, fieldWidth, fieldHeight));
             }
