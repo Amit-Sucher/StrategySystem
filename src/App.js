@@ -8,6 +8,8 @@ function App() {
     const [teamNumbers, setTeamNumbers] = useState(Array(6).fill(''));
     const [teamData, setTeamData] = useState(Array(6).fill(null));
     const heatmapContainerRef = useRef(null);
+    const heatmapDotInstanceRef = useRef(null);
+    const heatmapCloudInstanceRef = useRef(null);
 
     const fetchData = async () => {
         const publicSpreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv';
@@ -32,26 +34,47 @@ function App() {
         return () => clearInterval(intervalId);
     }, []);
 
+    useEffect(() => {
+        if (heatmapContainerRef.current) {
+            if (!heatmapDotInstanceRef.current) {
+                heatmapDotInstanceRef.current = h337.create({
+                    container: heatmapContainerRef.current,
+                    radius: 5, // Small radius for the solid dot
+                    maxOpacity: 1,
+                    minOpacity: 1,
+                    blur: 0,
+                    gradient: {
+                        0.0: 'lime',
+                        1.0: 'lime'
+                    }
+                });
+            }
+
+            if (!heatmapCloudInstanceRef.current) {
+                heatmapCloudInstanceRef.current = h337.create({
+                    container: heatmapContainerRef.current,
+                    radius: 25, // Larger radius for the cloud
+                    maxOpacity: 0.6,
+                    minOpacity: 0.1,
+                    blur: 0.9, // Higher blur for the cloud effect
+                    gradient: {
+                        0.0: 'lime',
+                        1.0: 'lime'
+                    }
+                });
+            }
+        }
+    }, []);
+
     const handleInputChange = (index, event) => {
         const input = event.target.value;
         const newTeamNumbers = [...teamNumbers];
         newTeamNumbers[index] = input;
         setTeamNumbers(newTeamNumbers);
 
-        const foundTeam = data.find(row => row['Teams'] === input);
-        const newTeamData = [...teamData];
-        newTeamData[index] = foundTeam;
+        const newTeamData = data.map(row => newTeamNumbers.includes(row['Teams']) ? row : null);
         setTeamData(newTeamData);
-        console.log(`Found team data for input ${index + 1}:`, foundTeam);
-
-        if (foundTeam && foundTeam.map) {
-            try {
-                const parsedMapData = parseMapData(foundTeam.map);
-                updateHeatmap(parsedMapData);
-            } catch (error) {
-                console.error('Error parsing map data:', error);
-            }
-        }
+        updateHeatmap(newTeamData.filter(Boolean));
     };
 
     const parseMapData = (mapString) => {
@@ -60,17 +83,12 @@ function App() {
 
         return coordinatePairs.map(pair => {
             const [x, y] = pair.slice(1, -1).split(',').map(Number);
-            return { x, y };
+            return { x, y, value: 1 };
         });
     };
 
-    const updateHeatmap = (mapData) => {
-        if (!heatmapContainerRef.current) return;
-
-        const heatmapInstance = h337.create({
-            container: heatmapContainerRef.current,
-            radius: 50
-        });
+    const updateHeatmap = (teamsData) => {
+        if (!heatmapDotInstanceRef.current || !heatmapCloudInstanceRef.current) return;
 
         const fieldWidth = 10;
         const fieldHeight = 10;
@@ -85,14 +103,21 @@ function App() {
             }));
         };
 
-        const imageCoordinates = mapCoordinatesToImage(mapData, imageWidth, imageHeight, fieldWidth, fieldHeight);
+        const imageCoordinates = teamsData.reduce((acc, team) => {
+            if (team && team.map) {
+                const coords = parseMapData(team.map);
+                acc.push(...mapCoordinatesToImage(coords, imageWidth, imageHeight, fieldWidth, fieldHeight));
+            }
+            return acc;
+        }, []);
 
         const data = {
-            max: 5,
+            max: 1,
             data: imageCoordinates
         };
 
-        heatmapInstance.setData(data);
+        heatmapDotInstanceRef.current.setData(data);
+        heatmapCloudInstanceRef.current.setData(data);
     };
 
     return (
@@ -111,33 +136,33 @@ function App() {
                             <div className="section-header">Auto</div>
                             <div className="grid-container">
                                 <div className="grid-item">AMP AUTO</div>
-                                <div className="grid-item">{teamData[index]['AMP AUTO']}</div>
+                                <div className="grid-item">{teamData[index]?.['AMP AUTO']}</div>
                                 <div className="grid-item">SPEAKER AUTO</div>
-                                <div className="grid-item">{teamData[index]['SPEAKER AUTO']}</div>
+                                <div className="grid-item">{teamData[index]?.['SPEAKER AUTO']}</div>
                                 <div className="grid-item">mid notes</div>
-                                <div className="grid-item">{teamData[index]['mid notes']}</div>
+                                <div className="grid-item">{teamData[index]?.['mid notes']}</div>
                             </div>
                             <div className="section-header">Teleop</div>
                             <div className="grid-container">
                                 <div className="grid-item">tele AMP</div>
-                                <div className="grid-item">{teamData[index]['tele AMP']}</div>
+                                <div className="grid-item">{teamData[index]?.['tele AMP']}</div>
                                 <div className="grid-item">Missed AMP</div>
-                                <div className="grid-item">{teamData[index]['Missed AMP']}</div>
+                                <div className="grid-item">{teamData[index]?.['Missed AMP']}</div>
                                 <div className="grid-item">tele Speaker</div>
-                                <div className="grid-item">{teamData[index]['tele Speaker']}</div>
+                                <div className="grid-item">{teamData[index]?.['tele Speaker']}</div>
                                 <div className="grid-item">tele Missed Speaker</div>
-                                <div className="grid-item">{teamData[index]['tele Missed Speaker']}</div>
+                                <div className="grid-item">{teamData[index]?.['tele Missed Speaker']}</div>
                                 <div className="grid-item">Defensive Pins</div>
-                                <div className="grid-item">{teamData[index]['Defensive Pins']}</div>
+                                <div className="grid-item">{teamData[index]?.['Defensive Pins']}</div>
                             </div>
                             <div className="section-header">General</div>
                             <div className="grid-container">
                                 <div className="grid-item">Shot to Trap</div>
-                                <div className="grid-item">{teamData[index]['Shot to Trap']}</div>
+                                <div className="grid-item">{teamData[index]?.['Shot to Trap']}</div>
                                 <div className="grid-item">Under Chain</div>
-                                <div className="grid-item">{teamData[index]['Under Chain']}</div>
+                                <div className="grid-item">{teamData[index]?.['Under Chain']}</div>
                                 <div className="grid-item">Long Shot</div>
-                                <div className="grid-item">{teamData[index]['Long Shot']}</div>
+                                <div className="grid-item">{teamData[index]?.['Long Shot']}</div>
                             </div>
                         </div>
                     )}
