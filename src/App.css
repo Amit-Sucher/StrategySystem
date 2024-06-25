@@ -20,6 +20,11 @@
   width: 32%;  /* Adjusted width to fit 3 per row */
   text-align: center;
   box-sizing: border-box;
+  transition: transform 0.2s;
+}
+
+.input-container:hover {
+  transform: scale(1.05);
 }
 
 .input-box {
