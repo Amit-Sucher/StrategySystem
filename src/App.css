@@ -12,12 +12,12 @@
 }
 
 .input-container {
-  margin: 3px;  /* Reduced margin */
-  padding: 3px;  /* Reduced padding */
+  margin: 3px;
+  padding: 3px;
   border: 1px solid #22333B;
   border-radius: 5px;
   background-color: #22333B;
-  width: 32%;  /* Adjusted width to fit 3 per row */
+  width: 32%;
   text-align: center;
   box-sizing: border-box;
   transition: transform 0.2s;
@@ -28,9 +28,9 @@
 }
 
 .input-box {
-  padding: 3px;  /* Reduced padding */
-  margin-bottom: 3px;  /* Reduced margin */
-  font-size: 12px;  /* Reduced font size */
+  padding: 3px;
+  margin-bottom: 3px;
+  font-size: 12px;
   border: 1px solid #ccc;
   border-radius: 5px;
   width: 90%;
@@ -56,37 +56,49 @@
   text-align: center;
   background-color: #22333B;
   border-radius: 5px;
-  padding: 3px;  /* Reduced padding */
-  margin-top: 0;  /* Removed margin */
+  padding: 3px;
+  margin-top: 0;
   border: 1px solid #4d5255;
+  display: flex;
+  flex-direction: column;
+  align-items: center;  /* Center the content horizontally */
 }
 
 .section-header {
   font-weight: bold;
-  margin-top: 3px;  /* Reduced margin */
-  margin-bottom: 3px;  /* Reduced margin */
-  font-size: 16px;  /* Reduced font size */
+  margin-top: 3px;
+  margin-bottom: 3px;
+  font-size: 16px;
   color: #E0E0E0;
 }
 
 .grid-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;  /* Reduced gap */
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .grid-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-weight: bold;
-  /* border: 1px solid #ddd; */
-  padding: 1px;  /* Reduced padding */
-  /* background-color: #22333B; */
+  padding: 2px 5px;  /* Adjusted padding */
   background-color: #1BB8CC;
-  font-size: 14px;  /* Reduced font size */
-  /* color: #E0E0E0;  */
+  font-size: 14px;  /* Adjusted font size */
   color: #22333B;
-  text-align: left;
+  border-radius: 3px;
+  width: 200px;  /* Fixed width to center items */
 }
 
 #heatmapContainer {
-  margin-top: 20px; /* Adjust as needed */
+  margin-top: 20px;
+  position: relative;
+  width: 1000px;
+  height: 500px;
+  transition: transform 0.2s;
+}
+
+#heatmapContainer:hover {
+  transform: scale(1.05);
 }
