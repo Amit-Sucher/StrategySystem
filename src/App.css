@@ -60,6 +60,7 @@
   margin-top: 3px;  /* Reduced margin */
   margin-bottom: 3px;  /* Reduced margin */
   font-size: 12px;  /* Reduced font size */
+  color: #C6AC8F;
 }
 
 .grid-container {
@@ -71,7 +72,7 @@
 .grid-item {
   border: 1px solid #ddd;
   padding: 1px;  /* Reduced padding */
-  background-color: #C6AC8F;
+  background-color: #DDCDBB;
   font-size: 12px;  /* Reduced font size */
 }
 
