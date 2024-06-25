@@ -68,7 +68,7 @@
   font-weight: bold;
   margin-top: 3px;
   margin-bottom: 3px;
-  font-size: 16px;
+  font-size: 17px;
   color: #E0E0E0;
 }
 
@@ -85,10 +85,10 @@
   font-weight: bold;
   padding: 2px 5px;  /* Adjusted padding */
   background-color: #1BB8CC;
-  font-size: 14px;  /* Adjusted font size */
+  font-size: 15px;  /* Adjusted font size */
   color: #22333B;
   border-radius: 3px;
-  width: 200px;  /* Fixed width to center items */
+  width: 250px;  /* Fixed width to center items */
 }
 
 #heatmapContainer {
