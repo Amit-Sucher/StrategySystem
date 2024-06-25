@@ -6,7 +6,7 @@
   justify-content: center;
   height: 100vh;
   text-align: center;
-  background-color: #0A0908;
+  background-color: #22333B;
   overflow-y: auto;
   padding: 5px;
 }
@@ -14,7 +14,7 @@
 .input-container {
   margin: 3px;  /* Reduced margin */
   padding: 3px;  /* Reduced padding */
-  border: 1px solid #ddd;
+  border: 1px solid #22333B;
   border-radius: 5px;
   background-color: #22333B;
   width: 32%;  /* Adjusted width to fit 3 per row */
@@ -53,14 +53,15 @@
   border-radius: 5px;
   padding: 3px;  /* Reduced padding */
   margin-top: 0;  /* Removed margin */
+  border: 1px solid #4d5255;
 }
 
 .section-header {
   font-weight: bold;
   margin-top: 3px;  /* Reduced margin */
   margin-bottom: 3px;  /* Reduced margin */
-  font-size: 12px;  /* Reduced font size */
-  color: #C6AC8F;
+  font-size: 16px;  /* Reduced font size */
+  color: #E0E0E0;
 }
 
 .grid-container {
@@ -70,10 +71,15 @@
 }
 
 .grid-item {
-  border: 1px solid #ddd;
+  font-weight: bold;
+  /* border: 1px solid #ddd; */
   padding: 1px;  /* Reduced padding */
-  background-color: #DDCDBB;
-  font-size: 12px;  /* Reduced font size */
+  /* background-color: #22333B; */
+  background-color: #1BB8CC;
+  font-size: 14px;  /* Reduced font size */
+  /* color: #E0E0E0;  */
+  color: #22333B;
+  text-align: left;
 }
 
 #heatmapContainer {

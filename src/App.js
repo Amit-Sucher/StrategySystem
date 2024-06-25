@@ -168,13 +168,13 @@ function App() {
                             </div>
                             <div className="section-header">Teleop</div>
                             <div className="grid-container">
-                                <div className="grid-item">tele AMP</div>
+                                <div className="grid-item">Tele AMP</div>
                                 <div className="grid-item">{teamData[index]?.['tele AMP']}</div>
                                 <div className="grid-item">Missed AMP</div>
                                 <div className="grid-item">{teamData[index]?.['Missed AMP']}</div>
-                                <div className="grid-item">tele Speaker</div>
+                                <div className="grid-item">Tele Speaker</div>
                                 <div className="grid-item">{teamData[index]?.['tele Speaker']}</div>
-                                <div className="grid-item">tele Missed Speaker</div>
+                                <div className="grid-item">Tele Missed Speaker</div>
                                 <div className="grid-item">{teamData[index]?.['tele Missed Speaker']}</div>
                                 <div className="grid-item">Defensive Pins</div>
                                 <div className="grid-item">{teamData[index]?.['Defensive Pins']}</div>
