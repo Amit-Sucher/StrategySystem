@@ -6,7 +6,7 @@
   justify-content: center;
   height: 100vh;
   text-align: center;
-  background-color: #012265;
+  background-color: #0A0908;
   overflow-y: auto;
   padding: 5px;
 }
@@ -16,7 +16,7 @@
   padding: 3px;  /* Reduced padding */
   border: 1px solid #ddd;
   border-radius: 5px;
-  background-color: #d4af37;
+  background-color: #22333B;
   width: 32%;  /* Adjusted width to fit 3 per row */
   text-align: center;
   box-sizing: border-box;
@@ -49,7 +49,7 @@
 
 .team-data-container {
   text-align: center;
-  background-color: #d4af37;
+  background-color: #22333B;
   border-radius: 5px;
   padding: 3px;  /* Reduced padding */
   margin-top: 0;  /* Removed margin */
@@ -71,7 +71,7 @@
 .grid-item {
   border: 1px solid #ddd;
   padding: 1px;  /* Reduced padding */
-  background-color: #f2f2f2;
+  background-color: #C6AC8F;
   font-size: 12px;  /* Reduced font size */
 }
 
