@@ -13,17 +13,24 @@ function App() {
 
     const fetchData = async () => {
         const publicSpreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv';
-        Papa.parse(publicSpreadsheetUrl, {
-            download: true,
-            header: true,
-            complete: function(results) {
-                console.log('Fetched data:', results.data);
-                setData(results.data);
-            },
-            error: function(error) {
-                console.warn('Error fetching data from Google Sheets', error);
-            }
-        });
+        const cacheBuster = `cacheBuster=${new Date().getTime()}`;
+        const urlWithCacheBuster = `${publicSpreadsheetUrl}&${cacheBuster}`;
+
+        try {
+            Papa.parse(urlWithCacheBuster, {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    console.log('Fetched data:', results.data);
+                    setData(results.data);
+                },
+                error: function(error) {
+                    console.warn('Error fetching data from Google Sheets', error);
+                }
+            });
+        } catch (error) {
+            console.error('Fetching data failed', error);
+        }
     };
 
     useEffect(() => {
@@ -31,39 +38,56 @@ function App() {
 
         const intervalId = setInterval(fetchData, 10000);
 
-        return () => clearInterval(intervalId);
+        return () => clearInterval(intervalId); // Clean up interval on unmount
     }, []);
+
+    const createCustomHeatmap = (container, config) => {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d', { willReadFrequently: true });
+        container.appendChild(canvas);
+
+        const heatmapInstance = h337.create({
+            container: container,
+            ...config
+        });
+
+        return heatmapInstance;
+    };
 
     useEffect(() => {
         if (heatmapContainerRef.current) {
-            if (!heatmapDotInstanceRef.current) {
-                heatmapDotInstanceRef.current = h337.create({
-                    container: heatmapContainerRef.current,
-                    radius: 5, // Small radius for the solid dot
-                    maxOpacity: 1,
-                    minOpacity: 1,
-                    blur: 0,
-                    gradient: {
-                        0.0: 'lime',
-                        1.0: 'lime'
-                    }
-                });
-            }
+            heatmapDotInstanceRef.current = createCustomHeatmap(heatmapContainerRef.current, {
+                radius: 5, // Small radius for the solid dot
+                maxOpacity: 1,
+                minOpacity: 1,
+                blur: 0,
+                gradient: {
+                    0.0: 'lime',
+                    1.0: 'lime'
+                }
+            });
 
-            if (!heatmapCloudInstanceRef.current) {
-                heatmapCloudInstanceRef.current = h337.create({
-                    container: heatmapContainerRef.current,
-                    radius: 25, // Larger radius for the cloud
-                    maxOpacity: 0.6,
-                    minOpacity: 0.1,
-                    blur: 0.9, // Higher blur for the cloud effect
-                    gradient: {
-                        0.0: 'lime',
-                        1.0: 'lime'
-                    }
-                });
-            }
+            heatmapCloudInstanceRef.current = createCustomHeatmap(heatmapContainerRef.current, {
+                radius: 25, // Larger radius for the cloud
+                maxOpacity: 0.6,
+                minOpacity: 0.1,
+                blur: 0.9, // Higher blur for the cloud effect
+                gradient: {
+                    0.0: 'lime',
+                    1.0: 'lime'
+                }
+            });
         }
+
+        return () => {
+            // Clean up heatmap instances on unmount
+            if (heatmapDotInstanceRef.current) {
+                heatmapDotInstanceRef.current = null;
+            }
+            if (heatmapCloudInstanceRef.current) {
+                heatmapCloudInstanceRef.current = null;
+            }
+        };
     }, []);
 
     const handleInputChange = (index, event) => {
