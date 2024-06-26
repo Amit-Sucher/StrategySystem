@@ -201,7 +201,7 @@ function App() {
                                     <span>{teamData[index]?.['SPEAKER AUTO']}</span>
                                 </div>
                                 <div className="grid-item">
-                                    <span>mid notes</span>
+                                    <span>Mid Notes</span>
                                     <span>{teamData[index]?.['mid notes']}</span>
                                 </div>
                             </div>
