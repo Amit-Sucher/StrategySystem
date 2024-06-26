@@ -13,6 +13,7 @@
 
 .input-container {
   margin: 3px;
+  margin-top: 70px;
   padding: 3px;
   border: 1px solid #22333B;
   border-radius: 5px;
@@ -101,4 +102,25 @@
 
 #heatmapContainer:hover {
   transform: scale(1.05);
+}
+
+
+.dropdown-container {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #22333B;
+  border: 1px solid #22333B;
+  border-radius: 5px;
+  padding: 10px;
+  z-index: 1000;
+}
+
+.dropdown-container select {
+  padding: 5px;
+  font-size: 16px;
+  background-color: #22333B;
+  color: #E0E0E0;
+  border-radius: 5px;
 }

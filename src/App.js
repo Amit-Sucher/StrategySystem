@@ -7,12 +7,21 @@ function App() {
     const [data, setData] = useState([]);
     const [teamNumbers, setTeamNumbers] = useState(Array(6).fill(''));
     const [teamData, setTeamData] = useState(Array(6).fill(null));
+    const [dataType, setDataType] = useState('average'); // New state for data type
     const heatmapContainerRef = useRef(null);
     const heatmapDotInstanceRef = useRef(null);
     const heatmapCloudInstanceRef = useRef(null);
 
-    const fetchData = async () => {
-        const publicSpreadsheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv';
+    const fetchData = async (sheetType) => {
+        let gid = '0'; // Default gid for average data
+        
+        if (sheetType === 'lastMatch') {
+            gid = '1877019773'; // Replace with actual gid
+        } else if (sheetType === 'last3Matches') {
+            gid = '1606759362'; // Replace with actual gid
+        }
+
+        const publicSpreadsheetUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv&gid=${gid}`;
         const cacheBuster = `cacheBuster=${new Date().getTime()}`;
         const urlWithCacheBuster = `${publicSpreadsheetUrl}&${cacheBuster}`;
 
@@ -34,12 +43,12 @@ function App() {
     };
 
     useEffect(() => {
-        fetchData();
+        fetchData(dataType);
 
-        const intervalId = setInterval(fetchData, 10000);
+        const intervalId = setInterval(() => fetchData(dataType), 10000);
 
         return () => clearInterval(intervalId); // Clean up interval on unmount
-    }, []);
+    }, [dataType]);
 
     const createCustomHeatmap = (container, config) => {
         const canvas = document.createElement('canvas');
@@ -101,6 +110,10 @@ function App() {
         updateHeatmap(newTeamData.filter(team => team && team.map));
     };
 
+    const handleDataTypeChange = (event) => {
+        setDataType(event.target.value);
+    };
+
     const parseMapData = (mapString) => {
         const coordinatePairs = mapString.match(/\(\d+,\d+\)/g);
         if (!coordinatePairs) throw new Error('Invalid map data format');
@@ -146,6 +159,13 @@ function App() {
 
     return (
         <div className="app-container">
+            <div className="dropdown-container">
+                <select value={dataType} onChange={handleDataTypeChange}>
+                    <option value="average">Average data</option>
+                    <option value="lastMatch">Last match data</option>
+                    <option value="last3Matches">Last 3 matches data</option>
+                </select>
+            </div>
             {Array.from({ length: 6 }).map((_, index) => (
                 <div key={index} className="input-container">
                     <input
@@ -219,6 +239,7 @@ function App() {
             </div>
         </div>
     );
+    
 }
 
 export default App;
