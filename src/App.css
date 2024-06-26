@@ -115,6 +115,7 @@
   border-radius: 5px;
   padding: 10px;
   z-index: 1000;
+  transition: transform 0.2s;
 }
 
 .dropdown-container select {
@@ -123,4 +124,30 @@
   background-color: #22333B;
   color: #E0E0E0;
   border-radius: 5px;
+}
+
+.dropdown-container:hover {
+  transform: translateX(-50%) scale(1.05); /* Ensure translateX is applied with scale */
+}
+
+
+.spinner-container {
+  position: fixed;
+  bottom: 10px; /* Position at the bottom */
+  left: 10px; /* Position at the left */
+  z-index: 1000;
+}
+
+.spinner {
+  border: 8px solid #f3f3f3; /* Smaller border */
+  border-top: 8px solid #3498db; /* Smaller border */
+  border-radius: 50%;
+  width: 60px; /* Smaller width */
+  height: 60px; /* Smaller height */
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

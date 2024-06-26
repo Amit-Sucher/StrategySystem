@@ -8,11 +8,13 @@ function App() {
     const [teamNumbers, setTeamNumbers] = useState(Array(6).fill(''));
     const [teamData, setTeamData] = useState(Array(6).fill(null));
     const [dataType, setDataType] = useState('average'); // New state for data type
+    const [loading, setLoading] = useState(false); // Loading state
     const heatmapContainerRef = useRef(null);
     const heatmapDotInstanceRef = useRef(null);
     const heatmapCloudInstanceRef = useRef(null);
 
     const fetchData = async (sheetType) => {
+        setLoading(true); // Start loading
         let gid = '0'; // Default gid for average data
         
         if (sheetType === 'lastMatch') {
@@ -32,13 +34,16 @@ function App() {
                 complete: function(results) {
                     console.log('Fetched data:', results.data);
                     setData(results.data);
+                    setLoading(false); // Stop loading
                 },
                 error: function(error) {
                     console.warn('Error fetching data from Google Sheets', error);
+                    setLoading(false); // Stop loading
                 }
             });
         } catch (error) {
             console.error('Fetching data failed', error);
+            setLoading(false); // Stop loading
         }
     };
 
@@ -49,6 +54,13 @@ function App() {
 
         return () => clearInterval(intervalId); // Clean up interval on unmount
     }, [dataType]);
+
+    useEffect(() => {
+        // Trigger team data update whenever data or teamNumbers change
+        const newTeamData = teamNumbers.map(number => data.find(row => row['Teams'] === number) || null);
+        setTeamData(newTeamData);
+        updateHeatmap(newTeamData.filter(team => team && team.map));
+    }, [data, teamNumbers]);
 
     const createCustomHeatmap = (container, config) => {
         const canvas = document.createElement('canvas');
@@ -104,10 +116,6 @@ function App() {
         const newTeamNumbers = [...teamNumbers];
         newTeamNumbers[index] = input;
         setTeamNumbers(newTeamNumbers);
-
-        const newTeamData = newTeamNumbers.map(number => data.find(row => row['Teams'] === number) || null);
-        setTeamData(newTeamData);
-        updateHeatmap(newTeamData.filter(team => team && team.map));
     };
 
     const handleDataTypeChange = (event) => {
@@ -166,6 +174,11 @@ function App() {
                     <option value="last3Matches">Last 3 matches data</option>
                 </select>
             </div>
+            {loading && (
+                <div className="spinner-container">
+                    <div className="spinner"></div>
+                </div>
+            )}
             {Array.from({ length: 6 }).map((_, index) => (
                 <div key={index} className="input-container">
                     <input
@@ -239,7 +252,6 @@ function App() {
             </div>
         </div>
     );
-    
 }
 
 export default App;
