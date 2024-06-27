@@ -7,11 +7,12 @@ function App() {
     const [data, setData] = useState([]);
     const [teamNumbers, setTeamNumbers] = useState(Array(6).fill(''));
     const [teamData, setTeamData] = useState(Array(6).fill(null));
+    const [teamColors, setTeamColors] = useState({});
     const [dataType, setDataType] = useState('average'); // New state for data type
     const [loading, setLoading] = useState(false); // Loading state
     const heatmapContainerRef = useRef(null);
-    const heatmapDotInstanceRef = useRef(null);
-    const heatmapCloudInstanceRef = useRef(null);
+    const heatmapDotInstancesRef = useRef({});
+    const heatmapCloudInstancesRef = useRef({});
 
     const fetchData = async (sheetType) => {
         setLoading(true); // Start loading
@@ -47,8 +48,31 @@ function App() {
         }
     };
 
+    const fetchTeamColors = async (teamNumbers) => {
+        const teams = teamNumbers.filter(Boolean).join('&team=');
+        if (!teams) return;
+        
+        try {
+            const response = await fetch(`https://api.frc-colors.com/v1/team?team=${teams}`);
+            const data = await response.json();
+            const colors = {};
+            for (const team in data.teams) {
+                const teamData = data.teams[team];
+                if (teamData.colors) {
+                    colors[team] = teamData.colors.primaryHex;
+                } else {
+                    colors[team] = '#00FF00'; // Fallback color
+                }
+            }
+            setTeamColors(colors);
+        } catch (error) {
+            console.error('Error fetching team colors:', error);
+        }
+    };
+
     useEffect(() => {
         fetchData(dataType);
+        fetchTeamColors(teamNumbers);
 
         const intervalId = setInterval(() => fetchData(dataType), 10000);
 
@@ -59,57 +83,59 @@ function App() {
         // Trigger team data update whenever data or teamNumbers change
         const newTeamData = teamNumbers.map(number => data.find(row => row['Teams'] === number) || null);
         setTeamData(newTeamData);
-        updateHeatmap(newTeamData.filter(team => team && team.map));
+        fetchTeamColors(teamNumbers);
     }, [data, teamNumbers]);
-
-    const createCustomHeatmap = (container, config) => {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d', { willReadFrequently: true });
-        container.appendChild(canvas);
-
-        const heatmapInstance = h337.create({
-            container: container,
-            ...config
-        });
-
-        return heatmapInstance;
-    };
 
     useEffect(() => {
         if (heatmapContainerRef.current) {
-            heatmapDotInstanceRef.current = createCustomHeatmap(heatmapContainerRef.current, {
-                radius: 5, // Small radius for the solid dot
-                maxOpacity: 1,
-                minOpacity: 1,
-                blur: 0,
-                gradient: {
-                    0.0: 'lime',
-                    1.0: 'lime'
-                }
-            });
+            // Clean up existing heatmap instances
+            Object.values(heatmapDotInstancesRef.current).forEach(instance => instance.setData({ max: 1, data: [] }));
+            Object.values(heatmapCloudInstancesRef.current).forEach(instance => instance.setData({ max: 1, data: [] }));
 
-            heatmapCloudInstanceRef.current = createCustomHeatmap(heatmapContainerRef.current, {
-                radius: 25, // Larger radius for the cloud
-                maxOpacity: 0.6,
-                minOpacity: 0.1,
-                blur: 0.9, // Higher blur for the cloud effect
-                gradient: {
-                    0.0: 'lime',
-                    1.0: 'lime'
+            // Create new heatmap instances for each team
+            teamNumbers.forEach(team => {
+                if (!heatmapDotInstancesRef.current[team]) {
+                    heatmapDotInstancesRef.current[team] = createCustomHeatmap(heatmapContainerRef.current, {
+                        radius: 3, // Small radius for the solid dot
+                        maxOpacity: 1,
+                        minOpacity: 1,
+                        blur: 0,
+                        gradient: {
+                            0.0: teamColors[team] || '#00FF00',
+                            1.0: teamColors[team] || '#00FF00'
+                        }
+                    });
+                } else {
+                    heatmapDotInstancesRef.current[team].configure({
+                        gradient: {
+                            0.0: teamColors[team] || '#00FF00',
+                            1.0: teamColors[team] || '#00FF00'
+                        }
+                    });
+                }
+
+                if (!heatmapCloudInstancesRef.current[team]) {
+                    heatmapCloudInstancesRef.current[team] = createCustomHeatmap(heatmapContainerRef.current, {
+                        radius: 20, // Larger radius for the cloud
+                        maxOpacity: 0.6,
+                        minOpacity: 0.1,
+                        blur: 0.9, // Higher blur for the cloud effect
+                        gradient: {
+                            0.0: teamColors[team] || '#00FF00',
+                            1.0: teamColors[team] || '#00FF00'
+                        }
+                    });
+                } else {
+                    heatmapCloudInstancesRef.current[team].configure({
+                        gradient: {
+                            0.0: teamColors[team] || '#00FF00',
+                            1.0: teamColors[team] || '#00FF00'
+                        }
+                    });
                 }
             });
         }
-
-        return () => {
-            // Clean up heatmap instances on unmount
-            if (heatmapDotInstanceRef.current) {
-                heatmapDotInstanceRef.current = null;
-            }
-            if (heatmapCloudInstanceRef.current) {
-                heatmapCloudInstanceRef.current = null;
-            }
-        };
-    }, []);
+    }, [teamColors]);
 
     const handleInputChange = (index, event) => {
         const input = event.target.value;
@@ -133,7 +159,7 @@ function App() {
     };
 
     const updateHeatmap = (teamsData) => {
-        if (!heatmapDotInstanceRef.current || !heatmapCloudInstanceRef.current) return;
+        if (!heatmapDotInstancesRef.current || !heatmapCloudInstancesRef.current) return;
 
         const fieldWidth = 10;
         const fieldHeight = 10;
@@ -148,21 +174,41 @@ function App() {
             }));
         };
 
-        const imageCoordinates = teamsData.reduce((acc, team) => {
-            if (team.map) {
+        teamsData.forEach(team => {
+            if (team && team.map) {
                 const coords = parseMapData(team.map);
-                acc.push(...mapCoordinatesToImage(coords, imageWidth, imageHeight, fieldWidth, fieldHeight));
+                const imageCoordinates = mapCoordinatesToImage(coords, imageWidth, imageHeight, fieldWidth, fieldHeight);
+
+                const data = {
+                    max: 1,
+                    data: imageCoordinates
+                };
+
+                if (heatmapDotInstancesRef.current[team['Teams']]) {
+                    heatmapDotInstancesRef.current[team['Teams']].setData(data);
+                }
+                if (heatmapCloudInstancesRef.current[team['Teams']]) {
+                    heatmapCloudInstancesRef.current[team['Teams']].setData(data);
+                }
             }
-            return acc;
-        }, []);
+        });
+    };
 
-        const data = {
-            max: 1,
-            data: imageCoordinates
-        };
+    useEffect(() => {
+        updateHeatmap(teamData);
+    }, [teamData, teamColors]);
 
-        heatmapDotInstanceRef.current.setData(data);
-        heatmapCloudInstanceRef.current.setData(data);
+    const createCustomHeatmap = (container, config) => {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d', { willReadFrequently: true });
+        container.appendChild(canvas);
+
+        const heatmapInstance = h337.create({
+            container: container,
+            ...config
+        });
+
+        return heatmapInstance;
     };
 
     return (
