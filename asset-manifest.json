@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/StrategySystem/static/css/main.f5db77fb.css",
-    "main.js": "/StrategySystem/static/js/main.789272c1.js",
+    "main.js": "/StrategySystem/static/js/main.2f12a5f2.js",
     "static/js/453.edb77b64.chunk.js": "/StrategySystem/static/js/453.edb77b64.chunk.js",
     "index.html": "/StrategySystem/index.html",
     "main.f5db77fb.css.map": "/StrategySystem/static/css/main.f5db77fb.css.map",
-    "main.789272c1.js.map": "/StrategySystem/static/js/main.789272c1.js.map",
+    "main.2f12a5f2.js.map": "/StrategySystem/static/js/main.2f12a5f2.js.map",
     "453.edb77b64.chunk.js.map": "/StrategySystem/static/js/453.edb77b64.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f5db77fb.css",
-    "static/js/main.789272c1.js"
+    "static/js/main.2f12a5f2.js"
   ]
 }
