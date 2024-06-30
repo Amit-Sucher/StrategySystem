@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import Excalidraw from '@excalidraw/excalidraw';
+import { Excalidraw } from '@excalidraw/excalidraw';
 import './App.css';
 
 const DrawScreen = () => {
@@ -14,7 +14,7 @@ const DrawScreen = () => {
   const initialData = {
     elements: [],
     appState: {
-      viewBackgroundColor: 'transparent', // Make sure the background is transparent
+      viewBackgroundColor: 'transparent', // Ensure the background is transparent
     },
     files: {},
   };
@@ -23,16 +23,16 @@ const DrawScreen = () => {
     <div>
       <h1>Draw Screen</h1>
       <div style={{ height: '600px', position: 'relative' }}>
-        <div style={{ 
-          position: 'absolute', 
-          top: 0, 
-          left: 0, 
-          width: '100%', 
-          height: '100%', 
-          backgroundImage: `url(${process.env.PUBLIC_URL}/background.png)`,
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundImage: 'url(frcfieldNoBG.png)',
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
-          zIndex: 1 
+          zIndex: 1
         }} />
         <div style={{ height: '600px', zIndex: 2, position: 'relative' }}>
           <Excalidraw ref={excalidrawRef} initialData={initialData} />
@@ -43,4 +43,3 @@ const DrawScreen = () => {
 };
 
 export default DrawScreen;
-//trying to see smthing
