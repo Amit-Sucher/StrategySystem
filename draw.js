@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import '../src/index.css';
-import DrawScreen from '../src/DrawScreen';
-import reportWebVitals from '../src/reportWebVitals';
+import './index.css'; // Ensure the correct path to the CSS file
+import DrawScreen from '../src/DrawScreen'; // Ensure the correct path to DrawScreen component
 
 ReactDOM.render(
   <React.StrictMode>
@@ -10,5 +9,3 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 );
-
-reportWebVitals();
