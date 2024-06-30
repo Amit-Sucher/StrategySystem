@@ -139,7 +139,7 @@
 }
 
 .spinner {
-  border: 8px solid #f3f3f3; /* Smaller border */
+  border: 8px solid #22333B; /* Smaller border */
   border-top: 8px solid #3498db; /* Smaller border */
   border-radius: 50%;
   width: 60px; /* Smaller width */
