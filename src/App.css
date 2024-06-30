@@ -104,7 +104,6 @@
   transform: scale(1.05);
 }
 
-
 .dropdown-container {
   position: fixed;
   top: 10px;
@@ -130,7 +129,6 @@
   transform: translateX(-50%) scale(1.05); /* Ensure translateX is applied with scale */
 }
 
-
 .spinner-container {
   position: fixed;
   bottom: 10px; /* Position at the bottom */
@@ -139,7 +137,7 @@
 }
 
 .spinner {
-  border: 8px solid #22333B; /* Smaller border */
+  border: 8px solid #f3f3f3; /* Smaller border */
   border-top: 8px solid #3498db; /* Smaller border */
   border-radius: 50%;
   width: 60px; /* Smaller width */
@@ -150,4 +148,15 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.excalidraw-section {
+  width: 100%;
+  margin-top: 150px;
+}
+
+.excalidraw-wrapper {
+  width: 100%;
+  height: 600px; /* Set a specific height for Excalidraw */
+  border: 1px solid #ccc;
 }
