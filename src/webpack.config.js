@@ -19,9 +19,7 @@ module.exports = {
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-        },
+        use: 'babel-loader',
       },
       {
         test: /\.css$/,
@@ -31,17 +29,19 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      filename: 'index.html',
       template: './public/index.html',
+      filename: 'index.html',
       chunks: ['index'],
     }),
     new HtmlWebpackPlugin({
-      filename: 'draw.html',
       template: './public/draw.html',
+      filename: 'draw.html',
       chunks: ['draw'],
     }),
   ],
   devServer: {
-    contentBase: './build',
+    contentBase: path.join(__dirname, 'build'),
+    compress: true,
+    port: 9000,
   },
 };
