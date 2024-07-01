@@ -1,3 +1,9 @@
+body {
+  background-color: #22333B; /* Ensure the body background is consistent */
+  margin: 0;
+  padding: 0;
+}
+
 .app-container {
   display: flex;
   flex-direction: row;
@@ -9,16 +15,16 @@
   background-color: #22333B;
   overflow-y: auto;
   padding: 5px;
+  margin-top: 60px; /* Adjust top margin */
 }
 
 .input-container {
-  margin: 3px;
-  margin-top: 70px;
+  margin: 5px;
   padding: 3px;
   border: 1px solid #22333B;
   border-radius: 5px;
   background-color: #22333B;
-  width: 32%;
+  width: 30%; /* Adjust width to fit three boxes in a row */
   text-align: center;
   box-sizing: border-box;
   transition: transform 0.2s;
@@ -92,6 +98,31 @@
   width: 250px;  /* Fixed width to center items */
 }
 
+
+.view-mode-dropdown-container {
+  position: fixed;
+  top: 10px;
+  left: 10px; /* Position it at the top right corner */
+  background-color: #22333B;
+  border: 1px solid #22333B;
+  border-radius: 5px;
+  padding: 10px;
+  z-index: 1000;
+  transition: transform 0.2s;
+}
+
+.view-mode-dropdown-container select {
+  padding: 5px;
+  font-size: 16px;
+  background-color: #22333B;
+  color: #E0E0E0;
+  border-radius: 5px;
+}
+
+.view-mode-dropdown-container:hover {
+  transform: scale(1.05);
+}
+
 #heatmapContainer {
   margin-top: 20px;
   position: relative;
@@ -106,7 +137,7 @@
 
 .dropdown-container {
   position: fixed;
-  top: 10px;
+  top: 0; /* Move the dropdown higher */
   left: 50%;
   transform: translateX(-50%);
   background-color: #22333B;
@@ -148,15 +179,4 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-.excalidraw-section {
-  width: 100%;
-  margin-top: 150px;
-}
-
-.excalidraw-wrapper {
-  width: 100%;
-  height: 600px; /* Set a specific height for Excalidraw */
-  border: 1px solid #ccc;
 }
