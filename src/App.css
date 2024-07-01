@@ -10,12 +10,12 @@ body {
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: center;
-  height: 100vh;
+  height: calc(100vh - 50px); /* Adjust height to account for the dropdown */
   text-align: center;
   background-color: #22333B;
   overflow-y: auto;
   padding: 5px;
-  margin-top: 60px; /* Adjust top margin */
+  margin-top: 60px; /* Add top margin to push boxes below the dropdown */
 }
 
 .input-container {
@@ -98,6 +98,42 @@ body {
   width: 250px;  /* Fixed width to center items */
 }
 
+#heatmapContainer {
+  margin-top: 20px;
+  position: relative;
+  width: 1000px;
+  height: 500px;
+  transition: transform 0.2s;
+}
+
+#heatmapContainer:hover {
+  transform: scale(1.05);
+}
+
+.dropdown-container {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #22333B;
+  border: 1px solid #22333B;
+  border-radius: 5px;
+  padding: 10px;
+  z-index: 1000;
+  transition: transform 0.2s;
+}
+
+.dropdown-container select {
+  padding: 5px;
+  font-size: 16px;
+  background-color: #22333B;
+  color: #E0E0E0;
+  border-radius: 5px;
+}
+
+.dropdown-container:hover {
+  transform: translateX(-50%) scale(1.05); /* Ensure translateX is applied with scale */
+}
 
 .view-mode-dropdown-container {
   position: fixed;
@@ -123,60 +159,10 @@ body {
   transform: scale(1.05);
 }
 
-#heatmapContainer {
-  margin-top: 20px;
-  position: relative;
-  width: 1000px;
-  height: 500px;
-  transition: transform 0.2s;
-}
-
-#heatmapContainer:hover {
-  transform: scale(1.05);
-}
-
-.dropdown-container {
-  position: fixed;
-  top: 0; /* Move the dropdown higher */
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #22333B;
-  border: 1px solid #22333B;
-  border-radius: 5px;
-  padding: 10px;
-  z-index: 1000;
-  transition: transform 0.2s;
-}
-
-.dropdown-container select {
-  padding: 5px;
-  font-size: 16px;
-  background-color: #22333B;
-  color: #E0E0E0;
-  border-radius: 5px;
-}
-
-.dropdown-container:hover {
-  transform: translateX(-50%) scale(1.05); /* Ensure translateX is applied with scale */
-}
-
-.spinner-container {
-  position: fixed;
-  bottom: 10px; /* Position at the bottom */
-  left: 10px; /* Position at the left */
-  z-index: 1000;
-}
-
-.spinner {
-  border: 8px solid #f3f3f3; /* Smaller border */
-  border-top: 8px solid #3498db; /* Smaller border */
-  border-radius: 50%;
-  width: 60px; /* Smaller width */
-  height: 60px; /* Smaller height */
-  animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.one-team-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 100px); /* Adjust height to account for the dropdown */
 }
