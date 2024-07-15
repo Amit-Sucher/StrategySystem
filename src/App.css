@@ -130,7 +130,7 @@
 .dropdown-container-teams {
   position: fixed;
   bottom: 10px;
-  right: 10%;
+  right: 1%;
   transform: translateX(-50%);
   background-color: #22333B;
   border: 1px solid #22333B;
