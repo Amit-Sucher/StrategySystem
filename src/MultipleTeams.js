@@ -3,25 +3,23 @@ import './App.css';
 import Papa from 'papaparse';
 import h337 from 'heatmap.js';
 
-function MultipleTeams() {
+function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeChange }) {
     const [data, setData] = useState([]);
-    const [teamNumbers, setTeamNumbers] = useState(Array(6).fill(''));
     const [teamData, setTeamData] = useState(Array(6).fill(null));
     const [teamColors, setTeamColors] = useState({});
-    const [dataType, setDataType] = useState('average'); // New state for data type
-    const [loading, setLoading] = useState(false); // Loading state
+    const [loading, setLoading] = useState(false);
     const heatmapContainerRef = useRef(null);
     const heatmapDotInstancesRef = useRef({});
     const heatmapCloudInstancesRef = useRef({});
 
     const fetchData = async (sheetType) => {
-        setLoading(true); // Start loading
-        let gid = '0'; // Default gid for average data
+        setLoading(true);
+        let gid = '0';
 
         if (sheetType === 'lastMatch') {
-            gid = '1877019773'; // Replace with actual gid
+            gid = '1877019773';
         } else if (sheetType === 'last3Matches') {
-            gid = '1606759362'; // Replace with actual gid
+            gid = '1606759362';
         }
 
         const publicSpreadsheetUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv&gid=${gid}`;
@@ -32,19 +30,19 @@ function MultipleTeams() {
             Papa.parse(urlWithCacheBuster, {
                 download: true,
                 header: true,
-                complete: function(results) {
+                complete: function (results) {
                     console.log('Fetched data:', results.data);
                     setData(results.data);
-                    setLoading(false); // Stop loading
+                    setLoading(false);
                 },
-                error: function(error) {
+                error: function (error) {
                     console.warn('Error fetching data from Google Sheets', error);
-                    setLoading(false); // Stop loading
-                }
+                    setLoading(false);
+                },
             });
         } catch (error) {
             console.error('Fetching data failed', error);
-            setLoading(false); // Stop loading
+            setLoading(false);
         }
     };
 
@@ -61,7 +59,7 @@ function MultipleTeams() {
                 if (teamData.colors) {
                     colors[team] = teamData.colors.primaryHex;
                 } else {
-                    colors[team] = '#00FF00'; // Fallback color
+                    colors[team] = '#00FF00';
                 }
             }
             setTeamColors(colors);
@@ -76,61 +74,58 @@ function MultipleTeams() {
 
         const intervalId = setInterval(() => fetchData(dataType), 10000);
 
-        return () => clearInterval(intervalId); // Clean up interval on unmount
+        return () => clearInterval(intervalId);
     }, [dataType]);
 
     useEffect(() => {
-        // Trigger team data update whenever data or teamNumbers change
-        const newTeamData = teamNumbers.map(number => data.find(row => row['Teams'] === number) || null);
+        const newTeamData = teamNumbers.map((number) => data.find((row) => row['Teams'] === number) || null);
         setTeamData(newTeamData);
         fetchTeamColors(teamNumbers);
     }, [data, teamNumbers]);
 
     useEffect(() => {
         if (heatmapContainerRef.current) {
-            // Clean up existing heatmap instances
-            Object.values(heatmapDotInstancesRef.current).forEach(instance => instance.setData({ max: 1, data: [] }));
-            Object.values(heatmapCloudInstancesRef.current).forEach(instance => instance.setData({ max: 1, data: [] }));
+            Object.values(heatmapDotInstancesRef.current).forEach((instance) => instance.setData({ max: 1, data: [] }));
+            Object.values(heatmapCloudInstancesRef.current).forEach((instance) => instance.setData({ max: 1, data: [] }));
 
-            // Create new heatmap instances for each team
-            teamNumbers.forEach(team => {
+            teamNumbers.forEach((team) => {
                 if (!heatmapDotInstancesRef.current[team]) {
                     heatmapDotInstancesRef.current[team] = createCustomHeatmap(heatmapContainerRef.current, {
-                        radius: 3, // Small radius for the solid dot
+                        radius: 3,
                         maxOpacity: 1,
                         minOpacity: 1,
                         blur: 0,
                         gradient: {
                             0.0: teamColors[team] || '#00FF00',
-                            1.0: teamColors[team] || '#00FF00'
-                        }
+                            1.0: teamColors[team] || '#00FF00',
+                        },
                     });
                 } else {
                     heatmapDotInstancesRef.current[team].configure({
                         gradient: {
                             0.0: teamColors[team] || '#00FF00',
-                            1.0: teamColors[team] || '#00FF00'
-                        }
+                            1.0: teamColors[team] || '#00FF00',
+                        },
                     });
                 }
 
                 if (!heatmapCloudInstancesRef.current[team]) {
                     heatmapCloudInstancesRef.current[team] = createCustomHeatmap(heatmapContainerRef.current, {
-                        radius: 20, // Larger radius for the cloud
+                        radius: 20,
                         maxOpacity: 0.6,
                         minOpacity: 0.1,
-                        blur: 0.9, // Higher blur for the cloud effect
+                        blur: 0.9,
                         gradient: {
                             0.0: teamColors[team] || '#00FF00',
-                            1.0: teamColors[team] || '#00FF00'
-                        }
+                            1.0: teamColors[team] || '#00FF00',
+                        },
                     });
                 } else {
                     heatmapCloudInstancesRef.current[team].configure({
                         gradient: {
                             0.0: teamColors[team] || '#00FF00',
-                            1.0: teamColors[team] || '#00FF00'
-                        }
+                            1.0: teamColors[team] || '#00FF00',
+                        },
                     });
                 }
             });
@@ -139,20 +134,14 @@ function MultipleTeams() {
 
     const handleInputChange = (index, event) => {
         const input = event.target.value;
-        const newTeamNumbers = [...teamNumbers];
-        newTeamNumbers[index] = input;
-        setTeamNumbers(newTeamNumbers);
-    };
-
-    const handleDataTypeChange = (event) => {
-        setDataType(event.target.value);
+        onTeamNumbersChange(index, input);
     };
 
     const parseMapData = (mapString) => {
         const coordinatePairs = mapString.match(/\(\d+,\d+\)/g);
         if (!coordinatePairs) throw new Error('Invalid map data format');
 
-        return coordinatePairs.map(pair => {
+        return coordinatePairs.map((pair) => {
             const [x, y] = pair.slice(1, -1).split(',').map(Number);
             return { x, y, value: 1 };
         });
@@ -167,21 +156,21 @@ function MultipleTeams() {
         const imageHeight = 500;
 
         const mapCoordinatesToImage = (fieldCoords, imgWidth, imgHeight, fieldWidth, fieldHeight) => {
-            return fieldCoords.map(coord => ({
+            return fieldCoords.map((coord) => ({
                 x: (coord.x / fieldWidth) * imgWidth,
                 y: (coord.y / fieldHeight) * imgHeight,
-                value: 1
+                value: 1,
             }));
         };
 
-        teamsData.forEach(team => {
+        teamsData.forEach((team) => {
             if (team && team.map) {
                 const coords = parseMapData(team.map);
                 const imageCoordinates = mapCoordinatesToImage(coords, imageWidth, imageHeight, fieldWidth, fieldHeight);
 
                 const data = {
                     max: 1,
-                    data: imageCoordinates
+                    data: imageCoordinates,
                 };
 
                 if (heatmapDotInstancesRef.current[team['Teams']]) {
@@ -205,7 +194,7 @@ function MultipleTeams() {
 
         const heatmapInstance = h337.create({
             container: container,
-            ...config
+            ...config,
         });
 
         return heatmapInstance;
@@ -214,7 +203,7 @@ function MultipleTeams() {
     return (
         <div className="multiple-teams-container">
             <div className="dropdown-container">
-                <select value={dataType} onChange={handleDataTypeChange}>
+                <select value={dataType} onChange={onDataTypeChange}>
                     <option value="average">Average data</option>
                     <option value="lastMatch">Last match data</option>
                     <option value="last3Matches">Last 3 matches data</option>
