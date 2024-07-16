@@ -20,6 +20,7 @@
     text-align: center;
     box-sizing: border-box;
     transition: transform 0.2s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Added shadow */
 }
 
 .input-container:hover {
@@ -36,6 +37,7 @@
     text-align: center;
     background-color: white;
     color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Added shadow */
 }
 
 .input-box::placeholder {
@@ -96,6 +98,7 @@
     width: 1000px;
     height: 500px;
     transition: transform 0.2s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Added shadow */
 }
 
 #heatmapContainer:hover {
@@ -113,6 +116,7 @@
     padding: 10px;
     z-index: 1000;
     transition: transform 0.2s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Added shadow */
 }
 
 .dropdown-container select {
@@ -128,30 +132,30 @@
 }
 
 .dropdown-container-teams {
-  position: fixed;
-  bottom: 10px;
-  right: 1%;
-  transform: translateX(-50%);
-  background-color: #22333B;
-  border: 1px solid #22333B;
-  border-radius: 5px;
-  padding: 10px;
-  z-index: 1000;
-  transition: transform 0.2s;
+    position: fixed;
+    bottom: 10px;
+    right: 1%;
+    transform: translateX(-50%);
+    background-color: #22333B;
+    border: 1px solid #22333B;
+    border-radius: 5px;
+    padding: 10px;
+    z-index: 1000;
+    transition: transform 0.2s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Added shadow */
 }
 
 .dropdown-container-teams select {
-  padding: 5px;
-  font-size: 16px;
-  background-color: #22333B;
-  color: #E0E0E0;
-  border-radius: 5px;
+    padding: 5px;
+    font-size: 16px;
+    background-color: #22333B;
+    color: #E0E0E0;
+    border-radius: 5px;
 }
 
 .dropdown-container-teams:hover {
-  transform: translateX(-50%) scale(1.05); /* Ensure translateX is applied with scale */
+    transform: translateX(-50%) scale(1.05); /* Ensure translateX is applied with scale */
 }
-
 
 .spinner-container {
     position: fixed;
@@ -192,8 +196,13 @@
 .chart-container {
     width: 80%;
     margin-top: 20px;
-    background-color: #ffffff;
+    background-color: #22333B;
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s;
+}
+
+.chart-container:hover {
+    transform: scale(1.05); /* Scale the container without translating */
 }
