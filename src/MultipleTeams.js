@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import '../public/static/CSS/App.css';
+import './App.css';
 import Papa from 'papaparse';
 import h337 from 'heatmap.js';
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../public/static/CSS/App.css';
+import './App.css';
 import SingleTeam from './SingleTeam';
 import MultipleTeams from './MultipleTeams';
 
