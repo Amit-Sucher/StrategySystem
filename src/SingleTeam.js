@@ -2,9 +2,14 @@ import React, { useEffect, useState, useRef } from 'react';
 import './App.css';
 import Papa from 'papaparse';
 import h337 from 'heatmap.js';
+import { Line } from 'react-chartjs-2';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange }) {
     const [data, setData] = useState([]);
+    const [allMatchesData, setAllMatchesData] = useState([]);
     const [teamData, setTeamData] = useState(null);
     const [teamColors, setTeamColors] = useState({});
     const [loading, setLoading] = useState(false);
@@ -20,6 +25,8 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
             gid = '1877019773';
         } else if (sheetType === 'last3Matches') {
             gid = '1606759362';
+        } else if (sheetType === 'allMatches') {
+            gid = '368108442';
         }
 
         const publicSpreadsheetUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv&gid=${gid}`;
@@ -32,7 +39,11 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
                 header: true,
                 complete: function (results) {
                     console.log('Fetched data:', results.data);
-                    setData(results.data);
+                    if (sheetType === 'allMatches') {
+                        setAllMatchesData(results.data);
+                    } else {
+                        setData(results.data);
+                    }
                     setLoading(false);
                 },
                 error: function (error) {
@@ -66,9 +77,13 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
 
     useEffect(() => {
         fetchData(dataType);
+        fetchData('allMatches');
         fetchTeamColors(teamNumber);
 
-        const intervalId = setInterval(() => fetchData(dataType), 10000);
+        const intervalId = setInterval(() => {
+            fetchData(dataType);
+            fetchData('allMatches');
+        }, 10000);
 
         return () => clearInterval(intervalId);
     }, [dataType]);
@@ -191,6 +206,27 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
         return heatmapInstance;
     };
 
+    // Prepare data for the line chart
+    const chartData = {
+        labels: allMatchesData.filter(row => row['Teams'] === teamNumber).map(row => `Match ${row['Match Number']}`),
+        datasets: [
+            {
+                label: 'Total Speaker',
+                data: allMatchesData.filter(row => row['Teams'] === teamNumber).map(row => parseInt(row['SPEAKER AUTO'], 10) || 0),
+                fill: false,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.1,
+            },
+            {
+                label: 'Total AMP',
+                data: allMatchesData.filter(row => row['Teams'] === teamNumber).map(row => parseInt(row['AMP AUTO'], 10) || 0),
+                fill: false,
+                borderColor: 'rgba(153, 102, 255, 1)',
+                tension: 0.1,
+            },
+        ],
+    };
+
     return (
         <div className="single-team-container">
             <div className="dropdown-container">
@@ -273,6 +309,9 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
             </div>
             <div id="heatmapContainer" ref={heatmapContainerRef}>
                 <img src="frcfieldNoBG.png" alt="FRC Field" style={{ width: '100%', height: '100%' }} />
+            </div>
+            <div className="chart-container">
+                <Line data={chartData} />
             </div>
         </div>
     );
