@@ -83,7 +83,7 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
         const intervalId = setInterval(() => {
             fetchData(dataType);
             fetchData('allMatches');
-        }, 10000);
+        }, 30000);  /* refresh every 30 seconds */
 
         return () => clearInterval(intervalId);
     }, [dataType]);

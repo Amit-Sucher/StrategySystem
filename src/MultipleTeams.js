@@ -72,7 +72,7 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
         fetchData(dataType);
         fetchTeamColors(teamNumbers);
 
-        const intervalId = setInterval(() => fetchData(dataType), 10000);
+        const intervalId = setInterval(() => fetchData(dataType), 30000); /* refresh every 30 seconds */
 
         return () => clearInterval(intervalId);
     }, [dataType]);
