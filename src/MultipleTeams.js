@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import './App.css';
+import '../public/static/CSS/App.css';
 import Papa from 'papaparse';
 import h337 from 'heatmap.js';
 
@@ -283,7 +283,7 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
                 </div>
             ))}
             <div id="heatmapContainer" ref={heatmapContainerRef}>
-                <img src="frcfieldNoBG.png" alt="FRC Field" style={{ width: '100%', height: '100%' }} />
+                <img src="../public/static/img/2024Field.png" alt="FRC Field" style={{ width: '100%', height: '100%' }} />
             </div>
         </div>
     );

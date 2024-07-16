@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import './App.css';
+import '../public/static/CSS/App.css';
 import Papa from 'papaparse';
 import h337 from 'heatmap.js';
 import { Line } from 'react-chartjs-2';
@@ -308,7 +308,7 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
                 )}
             </div>
             <div id="heatmapContainer" ref={heatmapContainerRef}>
-                <img src="frcfieldNoBG.png" alt="FRC Field" style={{ width: '100%', height: '100%' }} />
+                <img src="../public/static/img/2024Field.png" alt="FRC Field" style={{ width: '100%', height: '100%' }} />
             </div>
             <div className="chart-container">
                 <Line data={chartData} />
