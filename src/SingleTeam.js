@@ -308,7 +308,7 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
                 )}
             </div>
             <div id="heatmapContainer" ref={heatmapContainerRef}>
-                <img src="../public/static/img/2024Field.png" alt="FRC Field" style={{ width: '100%', height: '100%' }} />
+                <img src="2024Field.png" alt="FRC Field" style={{ width: '100%', height: '100%' }} />
             </div>
             <div className="chart-container">
                 <Line data={chartData} />
