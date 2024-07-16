@@ -1,12 +1,16 @@
+body {
+    background-color: #22333B;
+  }
+
 .app-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    height: 100vh;
+    /* height: 100vh; */
     text-align: center;
     background-color: #22333B;
-    overflow-y: auto;
+    /* overflow-y: auto; */
     padding: 5px;
 }
 
