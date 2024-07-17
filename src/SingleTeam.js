@@ -13,6 +13,7 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
     const [teamData, setTeamData] = useState(null);
     const [teamColors, setTeamColors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [selectedField, setSelectedField] = useState('AMP AUTO'); // New state for selected field
     const heatmapContainerRef = useRef(null);
     const heatmapDotInstanceRef = useRef(null);
     const heatmapCloudInstanceRef = useRef(null);
@@ -145,6 +146,10 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
         onTeamNumberChange(event.target.value);
     };
 
+    const handleFieldChange = (event) => {
+        setSelectedField(event.target.value);
+    };
+
     const parseMapData = (mapString) => {
         const coordinatePairs = mapString.match(/\(\d+,\d+\)/g);
         if (!coordinatePairs) throw new Error('Invalid map data format');
@@ -211,17 +216,10 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
         labels: allMatchesData.filter(row => row['Teams'] === teamNumber).map(row => `Match ${row['Match Number']}`),
         datasets: [
             {
-                label: 'Total Speaker',
-                data: allMatchesData.filter(row => row['Teams'] === teamNumber).map(row => parseInt(row['SPEAKER AUTO'], 10) || 0),
+                label: `${selectedField} - Team ${teamNumber}`,
+                data: allMatchesData.filter(row => row['Teams'] === teamNumber).map(row => parseInt(row[selectedField], 10) || 0),
                 fill: false,
                 borderColor: 'rgba(75, 192, 192, 1)',
-                tension: 0.1,
-            },
-            {
-                label: 'Total AMP',
-                data: allMatchesData.filter(row => row['Teams'] === teamNumber).map(row => parseInt(row['AMP AUTO'], 10) || 0),
-                fill: false,
-                borderColor: 'rgba(153, 102, 255, 1)',
                 tension: 0.1,
             },
         ],
@@ -310,6 +308,19 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
             <div id="heatmapContainer" ref={heatmapContainerRef}>
                 <img src="2024Field.png" alt="FRC Field" style={{ width: '100%', height: '100%' }} />
             </div>
+            <div className="field-selection-container"> {/* New container for field selection dropdown */}
+                <select value={selectedField} onChange={handleFieldChange}>
+                    <option value="AMP AUTO">AMP AUTO</option>
+                    <option value="SPEAKER AUTO">SPEAKER AUTO</option>
+                    <option value="mid notes">Mid Notes</option>
+                    <option value="tele AMP">Tele AMP</option>
+                    <option value="Missed AMP">Missed AMP</option>
+                    <option value="tele Speaker">Tele Speaker</option>
+                    <option value="tele Missed Speaker">Tele Missed Speaker</option>
+                    <option value="Defensive Pins">Defensive Pins</option>
+                    <option value="Shot to Trap">Shot to Trap</option>
+                </select>
+            </div>
             <div className="chart-container">
                 <Line data={chartData} />
             </div>
@@ -318,3 +329,4 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
 }
 
 export default SingleTeam;
+

@@ -105,9 +105,6 @@ body {
     /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); Added shadow */
 }
 
-#heatmapContainer:hover {
-    transform: scale(1.05);
-}
 
 .dropdown-container {
     position: fixed;
@@ -182,7 +179,7 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-.single-team-container {
+.single-team-container, .team-comparison-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -207,6 +204,35 @@ body {
     transition: transform 0.2s;
 }
 
-.chart-container:hover {
-    transform: scale(1.05); /* Scale the container without translating */
+
+
+.input-boxes-container {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping to ensure responsiveness */
+    justify-content: center; /* Center align the content */
+    width: 100%;
+    gap: 10px; /* Add some gap between the boxes */
+}
+
+.field-selection-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0; /* Add some margin for spacing */
+    z-index: 10; /* Ensure it's above other elements */
+    position: relative; /* Ensure it is positioned correctly */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.field-selection-container select {
+    padding: 5px;
+    font-size: 16px;
+    background-color: #22333B;
+    color: #E0E0E0;
+    border-radius: 5px;
+    border: 1px solid #E0E0E0; /* Add a border for better visibility */
+    z-index: 11; /* Ensure the dropdown itself is above other elements */
+}
+
+.field-selection-container:hover {
+    transform: scale(1.05); /* Ensure translateX is applied with scale */
 }
