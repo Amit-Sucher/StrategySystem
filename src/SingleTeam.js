@@ -310,8 +310,8 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
             </div>
             <div className="field-selection-container"> {/* New container for field selection dropdown */}
                 <select value={selectedField} onChange={handleFieldChange}>
-                    <option value="AMP AUTO">AMP AUTO</option>
-                    <option value="SPEAKER AUTO">SPEAKER AUTO</option>
+                    <option value="AMP AUTO">Auto AMP</option>
+                    <option value="SPEAKER AUTO">Auto Speaker</option>
                     <option value="mid notes">Mid Notes</option>
                     <option value="tele AMP">Tele AMP</option>
                     <option value="Missed AMP">Missed AMP</option>
