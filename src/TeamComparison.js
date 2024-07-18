@@ -20,12 +20,12 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
 
     const fetchData = async (sheetType) => {
         setLoading(true);
-        let gid = '0';
+        let gid = '564661292';
 
         if (sheetType === 'lastMatch') {
-            gid = '1877019773';
+            gid = '1741346213';
         } else if (sheetType === 'last3Matches') {
-            gid = '1606759362';
+            gid = '1660695738';
         } else if (sheetType === 'allMatches') {
             gid = '368108442';
         }
@@ -94,7 +94,7 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
         const intervalId = setInterval(() => {
             fetchData(dataType);
             fetchData('allMatches');
-        }, 30000);
+        }, 60000);
 
         return () => clearInterval(intervalId);
     }, [dataType, teamNumbers]);
