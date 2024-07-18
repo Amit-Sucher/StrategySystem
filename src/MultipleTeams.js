@@ -18,12 +18,12 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
 
     const fetchData = async (sheetType) => {
         setLoading(true);
-        let gid = '0';
+        let gid = '564661292';
 
         if (sheetType === 'lastMatch') {
-            gid = '1877019773';
+            gid = '1741346213';
         } else if (sheetType === 'last3Matches') {
-            gid = '1606759362';
+            gid = '1660695738';
         }
 
         const publicSpreadsheetUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv&gid=${gid}`;
@@ -76,7 +76,7 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
         fetchData(dataType);
         fetchTeamColors(teamNumbers);
 
-        const intervalId = setInterval(() => fetchData(dataType), 30000); /* refresh every 30 seconds */
+        const intervalId = setInterval(() => fetchData(dataType), 60000); /* refresh every 30 seconds */
 
         return () => clearInterval(intervalId);
     }, [dataType]);
