@@ -2,6 +2,10 @@ import React, { useEffect, useState, useRef } from 'react';
 import './App.css';
 import Papa from 'papaparse';
 import h337 from 'heatmap.js';
+import { Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeChange }) {
     const [data, setData] = useState([]);
@@ -200,6 +204,23 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
         return heatmapInstance;
     };
 
+    const generateChartData = (dataKey) => {
+        const topTeamsData = teamData.slice(0, 3).map(team => parseInt(team?.[dataKey] || 0));
+        const bottomTeamsData = teamData.slice(3).map(team => parseInt(team?.[dataKey] || 0));
+
+        const totalTop = topTeamsData.reduce((a, b) => a + b, 0);
+        const totalBottom = bottomTeamsData.reduce((a, b) => a + b, 0);
+
+        return {
+            labels: ['Top 3 Teams', 'Bottom 3 Teams'],
+            datasets: [{
+                data: [totalTop, totalBottom],
+                backgroundColor: ['#36A2EB', '#FF6384'],
+                hoverBackgroundColor: ['#36A2EB', '#FF6384'],
+            }],
+        };
+    };
+
     return (
         <div className="multiple-teams-container">
             <div className="dropdown-container">
@@ -284,6 +305,15 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
             ))}
             <div id="heatmapContainer" ref={heatmapContainerRef}>
                 <img src="2024Field.png" alt="FRC Field" style={{ width: '100%', height: '100%' }} />
+            </div>
+
+            <div className="pie-charts-container">
+                {['AMP AUTO', 'SPEAKER AUTO', 'mid notes', 'tele AMP', 'Missed AMP', 'tele Speaker', 'tele Missed Speaker', 'Defensive Pins', 'Shot to Trap', 'Under Chain', 'Long Shot'].map((key, index) => (
+                    <div key={index} className="pie-chart">
+                        <h4>{key}</h4>
+                        <Pie data={generateChartData(key)} />
+                    </div>
+                ))}
             </div>
         </div>
     );
