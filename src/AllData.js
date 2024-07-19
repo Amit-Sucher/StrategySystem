@@ -32,7 +32,12 @@ const Styles = styled.div`
 
     th {
       background: #22333B;
+      color: #E0E0E0; /* Changed column title color */
       font-weight: bold;
+    }
+
+    td div {
+      font-weight: bold; /* Make the numbers bold */
     }
   }
 `;
@@ -43,12 +48,12 @@ const AllData = ({ dataType }) => {
 
   const fetchData = async (sheetType) => {
     setLoading(true);
-    let gid = '1015827550'; // Default to average data
+    let gid = '564661292'; // Default to average data
 
     if (sheetType === 'lastMatch') {
-      gid = '1376166717';
+      gid = '1741346213';
     } else if (sheetType === 'last3Matches') {
-      gid = '1340938690';
+      gid = '1660695738';
     }
 
     const publicSpreadsheetUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv&gid=${gid}`;
@@ -94,9 +99,8 @@ const AllData = ({ dataType }) => {
     if (column === 'Teams') return 'white';
     if (maxValue === 0) return 'white'; // Avoid division by zero
     const percentage = ((value - minValue) / (maxValue - minValue)) * 100;
-    if (percentage <= 25) return '#ccf2ff'; // Light blue
-    if (percentage <= 50) return '#ffcccc'; // Light red
-    if (percentage <= 75) return '#ccffcc'; // Light green
+    if (percentage <= 33) return '#ccf2ff'; // Light blue
+    if (percentage <= 66) return '#ffcccc'; // Light red
     return '#ffd580'; // Light orange
   };
 
