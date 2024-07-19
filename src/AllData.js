@@ -82,7 +82,7 @@ const AllData = ({ dataType }) => {
   useEffect(() => {
     fetchData(dataType);
 
-    const intervalId = setInterval(() => fetchData(dataType), 30000); /* refresh every 30 seconds */
+    const intervalId = setInterval(() => fetchData(dataType), 60000); /* refresh every 30 seconds */
 
     return () => clearInterval(intervalId);
   }, [dataType]);
