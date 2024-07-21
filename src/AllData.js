@@ -39,6 +39,19 @@ const Styles = styled.div`
   }
 `;
 
+// Mapping of column names to their display names with spaces
+const columnMapping = {
+  "AMP AUTO": "Amp Auto",
+  "SPEAKER AUTO": "Speaker Auto",
+  "mid notes": "Mid Notes",
+  "tele AMP": "Tele Amp",
+  "Missed AMP": "Missed Amp",
+  "tele Speaker": "Tele Speaker",
+  "tele Missed Speaker": "Tele Missed Speaker",
+  "Defensive Pins": "Defensive Pins",
+  "Shot to Trap": "Shot to Trap"
+};
+
 const AllData = ({ data, loading, dataType, calculateScores }) => {
   const [weights, setWeights] = useState(Array(5).fill(0));
   const [selectedColumns, setSelectedColumns] = useState(Array(5).fill(''));
@@ -62,17 +75,19 @@ const AllData = ({ data, loading, dataType, calculateScores }) => {
 
   const columns = useMemo(() => {
     if (data.length > 0) {
-      return Object.keys(data[0]).map((key) => {
-        const maxValue = getColumnMaxValue(key);
-        const minValue = getColumnMinValue(key);
-        return {
-          Header: key,
-          accessor: key,
-          Cell: ({ value }) => (
-            <div style={{ backgroundColor: getCellColor(parseFloat(value), minValue, maxValue, key) }}>{value}</div>
-          ),
-        };
-      });
+      return Object.keys(data[0])
+        .filter(key => key in columnMapping)
+        .map((key) => {
+          const maxValue = getColumnMaxValue(key);
+          const minValue = getColumnMinValue(key);
+          return {
+            Header: columnMapping[key], // Use display name with spaces
+            accessor: key,
+            Cell: ({ value }) => (
+              <div style={{ backgroundColor: getCellColor(parseFloat(value), minValue, maxValue, key) }}>{value}</div>
+            ),
+          };
+        });
     }
     return [];
   }, [data]);
@@ -144,7 +159,7 @@ const AllData = ({ data, loading, dataType, calculateScores }) => {
                   }}>
                     <option value="">Select Column</option>
                     {columns.map(column => (
-                      <option key={column.accessor} value={column.accessor}>{column.accessor}</option>
+                      <option key={column.accessor} value={column.accessor}>{column.Header}</option>
                     ))}
                   </select>
                 </label>
