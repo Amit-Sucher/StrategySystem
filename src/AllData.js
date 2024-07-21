@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTable, useSortBy, useFilters } from 'react-table';
 
@@ -41,6 +41,7 @@ const Styles = styled.div`
 
 // Mapping of column names to their display names with spaces
 const columnMapping = {
+  "Teams": "Teams",
   "AMP AUTO": "Amp Auto",
   "SPEAKER AUTO": "Speaker Auto",
   "mid notes": "Mid Notes",
@@ -49,23 +50,49 @@ const columnMapping = {
   "tele Speaker": "Tele Speaker",
   "tele Missed Speaker": "Tele Missed Speaker",
   "Defensive Pins": "Defensive Pins",
-  "Shot to Trap": "Shot to Trap"
+  "Shot to Trap": "Shot to Trap",
+  "Under Chain": "Under Chain",
+  "Long Shot": "Long Shot",
+  "map": "Map"
 };
+
+// Columns to be shown in the calculation dropdown
+const calculationColumns = [
+  "AMP AUTO",
+  "SPEAKER AUTO",
+  "mid notes",
+  "tele AMP",
+  "Missed AMP",
+  "tele Speaker",
+  "tele Missed Speaker",
+  "Defensive Pins",
+  "Shot to Trap"
+];
 
 const AllData = ({ data, loading, dataType, calculateScores }) => {
   const [weights, setWeights] = useState(Array(5).fill(0));
   const [selectedColumns, setSelectedColumns] = useState(Array(5).fill(''));
+  const [calculatedData, setCalculatedData] = useState([]);
 
   const getColumnMaxValue = (column) => {
-    return Math.max(...data.map(row => parseFloat(row[column]) || 0));
+    return Math.max(...calculatedData.map(row => parseFloat(row[column]) || 0));
   };
 
   const getColumnMinValue = (column) => {
-    return Math.min(...data.map(row => parseFloat(row[column]) || 0));
+    return Math.min(...calculatedData.map(row => parseFloat(row[column]) || 0));
   };
 
   const getCellColor = (value, minValue, maxValue, column) => {
-    if (column === 'Teams') return 'white';
+    if (column === 'Teams' || column === 'Points') return 'white';
+    if (maxValue === 0) return 'white'; // Avoid division by zero
+    const percentage = ((value - minValue) / (maxValue - minValue)) * 100;
+    if (percentage <= 33) return '#ccf2ff'; // Light blue
+    if (percentage <= 66) return '#ffcccc'; // Light red
+    return '#ffd580'; // Light orange
+  };
+
+  // Color coding for the Points column
+  const getPointsColor = (value, minValue, maxValue) => {
     if (maxValue === 0) return 'white'; // Avoid division by zero
     const percentage = ((value - minValue) / (maxValue - minValue)) * 100;
     if (percentage <= 33) return '#ccf2ff'; // Light blue
@@ -74,23 +101,40 @@ const AllData = ({ data, loading, dataType, calculateScores }) => {
   };
 
   const columns = useMemo(() => {
-    if (data.length > 0) {
-      return Object.keys(data[0])
-        .filter(key => key in columnMapping)
+    if (calculatedData.length > 0) {
+      return Object.keys(calculatedData[0])
+        .filter(key => key in columnMapping || key === 'Points')
         .map((key) => {
           const maxValue = getColumnMaxValue(key);
           const minValue = getColumnMinValue(key);
           return {
-            Header: columnMapping[key], // Use display name with spaces
+            Header: key === 'Points' ? 'Points' : columnMapping[key], // Use display name with spaces
             accessor: key,
             Cell: ({ value }) => (
-              <div style={{ backgroundColor: getCellColor(parseFloat(value), minValue, maxValue, key) }}>{value}</div>
+              <div style={{ backgroundColor: key === 'Points' ? getPointsColor(parseFloat(value), minValue, maxValue) : getCellColor(parseFloat(value), minValue, maxValue, key) }}>
+                {value}
+              </div>
             ),
           };
         });
     }
     return [];
-  }, [data]);
+  }, [calculatedData]);
+
+  useEffect(() => {
+    const calculateScores = () => {
+      const updatedData = data.map(row => {
+        let totalScore = 0;
+        selectedColumns.forEach((col, index) => {
+          totalScore += (parseFloat(row[col]) || 0) * (weights[index] / 100);
+        });
+        return { ...row, Points: totalScore.toFixed(2) }; // Adding Points column
+      });
+      setCalculatedData(updatedData);
+    };
+
+    calculateScores();
+  }, [data, selectedColumns, weights]);
 
   const {
     getTableProps,
@@ -101,7 +145,7 @@ const AllData = ({ data, loading, dataType, calculateScores }) => {
   } = useTable(
     {
       columns,
-      data,
+      data: calculatedData,
     },
     useSortBy,
     useFilters // This will allow sorting and filtering to work independently for each column
@@ -158,8 +202,8 @@ const AllData = ({ data, loading, dataType, calculateScores }) => {
                     setSelectedColumns(newSelectedColumns);
                   }}>
                     <option value="">Select Column</option>
-                    {columns.map(column => (
-                      <option key={column.accessor} value={column.accessor}>{column.Header}</option>
+                    {calculationColumns.map(col => (
+                      <option key={col} value={col}>{columnMapping[col]}</option>
                     ))}
                   </select>
                 </label>
