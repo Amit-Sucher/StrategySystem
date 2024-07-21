@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
+import { FaArrowUp, FaArrowDown, FaEquals } from 'react-icons/fa'; // Import icons
 
 function MatchMessages({ dataType }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const messagesPerPage = 10;
+  const messagesPerPage = 10; // Number of messages per page
 
   const fetchData = async (sheetType) => {
     setLoading(true);
@@ -20,7 +21,7 @@ function MatchMessages({ dataType }) {
         download: true,
         header: true,
         complete: function (results) {
-          setData(results.data.reverse()); // Reverse the order of data here
+          setData(results.data.reverse()); // Reverse the order of data
           setLoading(false);
         },
         error: function (error) {
@@ -84,18 +85,53 @@ function MatchMessages({ dataType }) {
         const analysis = analyzePerformance(row['Teams']);
         return (
           <div key={index} className="match-message">
-            <p>Team {row['Teams']} - Match {row['Match Number']}</p>
-            <p>AMP AUTO: {row['AMP AUTO']}, SPEAKER AUTO: {row['SPEAKER AUTO']}, ...</p>
-            <p>Map: {row['map']}</p>
-            {typeof analysis === 'string' ? (
-              <p>{analysis}</p>
-            ) : (
-              <>
-                <p>Improvements: {analysis.improvements.join(', ')}</p>
-                <p>Declines: {analysis.declines.join(', ')}</p>
-                <p>Stable: {analysis.stable.join(', ')}</p>
-              </>
-            )}
+            <div className="match-header">
+              <h3>Team {row['Teams']}</h3>
+              <p>Match {row['Match Number']}</p>
+            </div>
+            <div className="match-stats">
+              <p><span>AMP AUTO:</span> {row['AMP AUTO']}</p>
+              <p><span>SPEAKER AUTO:</span> {row['SPEAKER AUTO']}</p>
+              {/* Add other metrics as needed */}
+            </div>
+            <div className="match-analysis">
+              {typeof analysis === 'string' ? (
+                <p>{analysis}</p>
+              ) : (
+                <>
+                  <div className="analysis-section">
+                    <h4>Improvements:</h4>
+                    {analysis.improvements.length > 0 ? (
+                      analysis.improvements.map((item, i) => (
+                        <p key={i}><FaArrowUp size={20} color="green" /> {item}</p>
+                      ))
+                    ) : (
+                      <p>None</p>
+                    )}
+                  </div>
+                  <div className="analysis-section">
+                    <h4>Declines:</h4>
+                    {analysis.declines.length > 0 ? (
+                      analysis.declines.map((item, i) => (
+                        <p key={i}><FaArrowDown size={20} color="red" /> {item}</p>
+                      ))
+                    ) : (
+                      <p>None</p>
+                    )}
+                  </div>
+                  <div className="analysis-section">
+                    <h4>Stable:</h4>
+                    {analysis.stable.length > 0 ? (
+                      analysis.stable.map((item, i) => (
+                        <p key={i}><FaEquals size={20} color="gray" /> {item}</p>
+                      ))
+                    ) : (
+                      <p>None</p>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         );
       })}

@@ -334,9 +334,54 @@ body {
     text-align: left;
   }
   
-  .match-message p {
-    margin: 5px 0;
+  .match-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #4d5255;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
   }
+  
+  .match-header h3 {
+    margin: 0;
+    color: #1BB8CC;
+  }
+  
+  .match-header p {
+    margin: 0;
+    color: #FF6347;
+  }
+  
+  .match-stats, .match-analysis {
+    margin: 10px 0;
+  }
+  
+  .match-stats p, .match-map p {
+    margin: 3px 0;
+  }
+  
+  .match-stats span {
+    font-weight: bold;
+    color: #1BB8CC;
+  }
+  
+  .analysis-section {
+    margin: 10px 0;
+  }
+  
+  .analysis-section h4 {
+    margin: 0 0 5px;
+    font-size: 19px;
+    color: #1BB8CC;
+  }
+  
+  .analysis-section p {
+    margin: 3px 0;
+    display: flex;
+    align-items: center;
+  }
+  
 
   .pagination {
     display: flex;
@@ -363,3 +408,5 @@ body {
     background-color: #FF6347;
     color: white;
   }
+
+ 
