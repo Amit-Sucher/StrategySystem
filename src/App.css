@@ -251,3 +251,62 @@ body {
     justify-self: center;
     
 } */
+
+.formula-section {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background-color: #22333B;
+    padding: 5px;
+    border: 1px solid #4d5255;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .formula-input {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .formula-input label {
+    color: #E0E0E0;
+    margin-bottom: 5px;
+  }
+
+  .formula-input select,
+  .formula-input input {
+    padding: 5px;
+    font-size: 16px;
+    background-color: #22333B;
+    color: #E0E0E0;
+    border-radius: 5px;
+    border: 1px solid #E0E0E0;
+    margin-bottom: 10px;
+  }
+
+  .formula-input select:hover,
+  .formula-input input:hover {
+    transform: scale(1.05);
+  }
+
+  .calculate-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #1BB8CC;
+    color: #22333B;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .calculate-button:hover {
+    transform: scale(1.05);
+  }
+
+ 

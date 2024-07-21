@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import Papa from 'papaparse';
+import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { useTable, useSortBy, useFilters } from 'react-table';
 
 const Styles = styled.div`
-  padding: 1rem;
-
   table {
     border-spacing: 0;
     border: 1px solid black;
@@ -42,50 +39,9 @@ const Styles = styled.div`
   }
 `;
 
-const AllData = ({ dataType }) => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  const fetchData = async (sheetType) => {
-    setLoading(true);
-    let gid = '564661292'; // Default to average data
-
-    if (sheetType === 'lastMatch') {
-      gid = '1741346213';
-    } else if (sheetType === 'last3Matches') {
-      gid = '1660695738';
-    }
-
-    const publicSpreadsheetUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv&gid=${gid}`;
-    const cacheBuster = `cacheBuster=${new Date().getTime()}`;
-    const urlWithCacheBuster = `${publicSpreadsheetUrl}&${cacheBuster}`;
-
-    try {
-      Papa.parse(urlWithCacheBuster, {
-        download: true,
-        header: true,
-        complete: function (results) {
-          setData(results.data);
-          setLoading(false);
-        },
-        error: function (error) {
-          console.warn('Error fetching data from Google Sheets', error);
-          setLoading(false);
-        },
-      });
-    } catch (error) {
-      console.error('Fetching data failed', error);
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData(dataType);
-
-    const intervalId = setInterval(() => fetchData(dataType), 60000); /* refresh every 30 seconds */
-
-    return () => clearInterval(intervalId);
-  }, [dataType]);
+const AllData = ({ data, loading, dataType, calculateScores }) => {
+  const [weights, setWeights] = useState(Array(5).fill(0));
+  const [selectedColumns, setSelectedColumns] = useState(Array(5).fill(''));
 
   const getColumnMaxValue = (column) => {
     return Math.max(...data.map(row => parseFloat(row[column]) || 0));
@@ -104,7 +60,7 @@ const AllData = ({ dataType }) => {
     return '#ffd580'; // Light orange
   };
 
-  const columns = React.useMemo(() => {
+  const columns = useMemo(() => {
     if (data.length > 0) {
       return Object.keys(data[0]).map((key) => {
         const maxValue = getColumnMaxValue(key);
@@ -143,38 +99,72 @@ const AllData = ({ dataType }) => {
           <div className="spinner"></div>
         </div>
       ) : (
-        <table {...getTableProps()}>
-          <thead>
-            {headerGroups.map((headerGroup) => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column) => (
-                  <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                    {column.render('Header')}
-                    <span>
-                      {column.isSorted
-                        ? column.isSortedDesc
-                          ? ' 🔽'
-                          : ' 🔼'
-                        : ''}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody {...getTableBodyProps()}>
-            {rows.map((row) => {
-              prepareRow(row);
-              return (
-                <tr {...row.getRowProps()}>
-                  {row.cells.map((cell) => (
-                    <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+        <div className="app-container">
+          <table {...getTableProps()}>
+            <thead>
+              {headerGroups.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column) => (
+                    <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                      {column.render('Header')}
+                      <span>
+                        {column.isSorted
+                          ? column.isSortedDesc
+                            ? ' 🔽'
+                            : ' 🔼'
+                          : ''}
+                      </span>
+                    </th>
                   ))}
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              ))}
+            </thead>
+            <tbody {...getTableBodyProps()}>
+              {rows.map((row) => {
+                prepareRow(row);
+                return (
+                  <tr {...row.getRowProps()}>
+                    {row.cells.map((cell) => (
+                      <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <div className="formula-section">
+            {selectedColumns.map((col, index) => (
+              <div key={index} className="formula-input">
+                <label>
+                  Column {index + 1}:
+                  <select value={col} onChange={e => {
+                    const newSelectedColumns = [...selectedColumns];
+                    newSelectedColumns[index] = e.target.value;
+                    setSelectedColumns(newSelectedColumns);
+                  }}>
+                    <option value="">Select Column</option>
+                    {columns.map(column => (
+                      <option key={column.accessor} value={column.accessor}>{column.accessor}</option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Weight (%):
+                  <input
+                    type="number"
+                    value={weights[index]}
+                    onChange={e => {
+                      const newWeights = [...weights];
+                      newWeights[index] = parseFloat(e.target.value);
+                      setWeights(newWeights);
+                    }}
+                  />
+                </label>
+              </div>
+            ))}
+            <button className="calculate-button" onClick={() => calculateScores(selectedColumns, weights)}>Calculate and Sort</button>
+          </div>
+        </div>
       )}
     </Styles>
   );
