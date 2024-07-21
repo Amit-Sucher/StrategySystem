@@ -309,4 +309,57 @@ body {
     transform: scale(1.05);
   }
 
- 
+
+  .match-messages-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    background-color: #22333B;
+    color: #E0E0E0;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    margin-top: 20px;
+  }
+  
+  .match-message {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #4d5255;
+    border-radius: 5px;
+    background-color: #1E2C2F;
+    width: 80%;
+    text-align: left;
+  }
+  
+  .match-message p {
+    margin: 5px 0;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .pagination button {
+    margin: 0 5px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1BB8CC;
+    color: #22333B;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  .pagination button:hover {
+    transform: scale(1.05);
+  }
+  
+  .pagination button.active {
+    background-color: #FF6347;
+    color: white;
+  }

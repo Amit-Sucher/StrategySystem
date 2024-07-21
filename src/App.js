@@ -4,6 +4,7 @@ import SingleTeam from './SingleTeam';
 import MultipleTeams from './MultipleTeams';
 import TeamComparison from './TeamComparison';
 import AllData from './AllData';
+import MatchMessages from './MatchMessages';
 import Papa from 'papaparse';
 
 function App() {
@@ -106,6 +107,7 @@ function App() {
           <option value="multiple">Multiple Teams</option>
           <option value="comparison">Team Comparison</option>
           <option value="all">All Data</option>
+          <option value="matchMessages">Match Messages</option> {/* New option */}
         </select>
       </div>
       <div className="dropdown-container">
@@ -135,6 +137,10 @@ function App() {
           onTeamNumbersChange={handleComparisonTeamNumbersChange}
           dataType={dataType}
           onDataTypeChange={handleDataTypeChange}
+        />
+      ) : teamMode === 'matchMessages' ? (  // New condition
+        <MatchMessages
+          dataType={dataType}
         />
       ) : (
         <AllData
