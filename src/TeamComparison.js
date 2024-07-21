@@ -13,7 +13,7 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
     const [teamData, setTeamData] = useState([null, null]);
     const [teamColors, setTeamColors] = useState({});
     const [loading, setLoading] = useState(false);
-    const [selectedField, setSelectedField] = useState('AMP AUTO'); // New state for selected field
+    const [selectedField, setSelectedField] = useState('AMP AUTO');
     const heatmapContainerRef = useRef(null);
     const heatmapDotInstancesRef = useRef([null, null]);
     const heatmapCloudInstancesRef = useRef([null, null]);
@@ -97,12 +97,11 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
         }, 60000);
 
         return () => clearInterval(intervalId);
-    }, [dataType, teamNumbers]);
+    }, [dataType]);
 
     useEffect(() => {
         const newTeamData = teamNumbers.map((number) => data.find((row) => row['Teams'] === number) || null);
         setTeamData(newTeamData);
-        fetchTeamColors(teamNumbers);
     }, [data, teamNumbers]);
 
     useEffect(() => {
@@ -229,7 +228,6 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
         return heatmapInstance;
     };
 
-    // Prepare data for the line chart
     const chartData = {
         labels: allMatchesData[0].map(row => `Match ${row['Match Number']}`),
         datasets: [
@@ -248,6 +246,12 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
                 tension: 0.1,
             },
         ],
+    };
+
+    const handleFetchData = () => {
+        fetchData(dataType);
+        fetchData('allMatches');
+        fetchTeamColors(teamNumbers);
     };
 
     return (
@@ -351,75 +355,75 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
                                     <span>SPEAKER AUTO</span>
                                     <span>{teamData[1]?.['SPEAKER AUTO']}</span>
                                 </div>
-                                    <div className="grid-item">
-                                        <span>Mid Notes</span>
-                                        <span>{teamData[1]?.['mid notes']}</span>
-                                    </div>
-                                </div>
-                                <div className="section-header">Teleop</div>
-                                <div className="grid-container">
-                                    <div className="grid-item">
-                                        <span>Tele AMP</span>
-                                        <span>{teamData[1]?.['tele AMP']}</span>
-                                    </div>
-                                    <div className="grid-item">
-                                        <span>Missed AMP</span>
-                                        <span>{teamData[1]?.['Missed AMP']}</span>
-                                    </div>
-                                    <div className="grid-item">
-                                        <span>Tele Speaker</span>
-                                        <span>{teamData[1]?.['tele Speaker']}</span>
-                                    </div>
-                                    <div className="grid-item">
-                                        <span>Tele Missed Speaker</span>
-                                        <span>{teamData[1]?.['tele Missed Speaker']}</span>
-                                    </div>
-                                    <div className="grid-item">
-                                        <span>Defensive Pins</span>
-                                        <span>{teamData[1]?.['Defensive Pins']}</span>
-                                    </div>
-                                </div>
-                                <div className="section-header">General</div>
-                                <div className="grid-container">
-                                    <div className="grid-item">
-                                        <span>Shot to Trap</span>
-                                        <span>{teamData[1]?.['Shot to Trap']}</span>
-                                    </div>
-                                    <div className="grid-item">
-                                        <span>Under Chain</span>
-                                        <span>{teamData[1]?.['Under Chain']}</span>
-                                    </div>
-                                    <div className="grid-item">
-                                        <span>Long Shot</span>
-                                        <span>{teamData[1]?.['Long Shot']}</span>
-                                    </div>
+                                <div className="grid-item">
+                                    <span>Mid Notes</span>
+                                    <span>{teamData[1]?.['mid notes']}</span>
                                 </div>
                             </div>
-                        )}
-                    </div>
-                </div>
-                <div id="heatmapContainer" ref={heatmapContainerRef}>
-                    <img src="2024Field.png" alt="FRC Field" style={{ width: '100%', height: '100%' }} />
-                </div>
-                <div className="field-selection-container"> {/* New container for field selection dropdown */}
-                    <select value={selectedField} onChange={handleFieldChange}>
-                        <option value="AMP AUTO">Auto AMP</option>
-                        <option value="SPEAKER AUTO">Auto Speaker</option>
-                        <option value="mid notes">Mid Notes</option>
-                        <option value="tele AMP">Tele AMP</option>
-                        <option value="Missed AMP">Missed AMP</option>
-                        <option value="tele Speaker">Tele Speaker</option>
-                        <option value="tele Missed Speaker">Tele Missed Speaker</option>
-                        <option value="Defensive Pins">Defensive Pins</option>
-                        <option value="Shot to Trap">Shot to Trap</option>
-                    </select>
-                </div>
-                <div className="chart-container">
-                    <Line data={chartData} />
+                            <div className="section-header">Teleop</div>
+                            <div className="grid-container">
+                                <div className="grid-item">
+                                    <span>Tele AMP</span>
+                                    <span>{teamData[1]?.['tele AMP']}</span>
+                                </div>
+                                <div className="grid-item">
+                                    <span>Missed AMP</span>
+                                    <span>{teamData[1]?.['Missed AMP']}</span>
+                                </div>
+                                <div className="grid-item">
+                                    <span>Tele Speaker</span>
+                                    <span>{teamData[1]?.['tele Speaker']}</span>
+                                </div>
+                                <div className="grid-item">
+                                    <span>Tele Missed Speaker</span>
+                                    <span>{teamData[1]?.['tele Missed Speaker']}</span>
+                                </div>
+                                <div className="grid-item">
+                                    <span>Defensive Pins</span>
+                                    <span>{teamData[1]?.['Defensive Pins']}</span>
+                                </div>
+                            </div>
+                            <div className="section-header">General</div>
+                            <div className="grid-container">
+                                <div className="grid-item">
+                                    <span>Shot to Trap</span>
+                                    <span>{teamData[1]?.['Shot to Trap']}</span>
+                                </div>
+                                <div className="grid-item">
+                                    <span>Under Chain</span>
+                                    <span>{teamData[1]?.['Under Chain']}</span>
+                                </div>
+                                <div className="grid-item">
+                                    <span>Long Shot</span>
+                                    <span>{teamData[1]?.['Long Shot']}</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
-        );
-    }
-    
-    export default TeamComparison;
-    
+            <div id="heatmapContainer" ref={heatmapContainerRef}>
+                <img src="2024Field.png" alt="FRC Field" style={{ width: '100%', height: '100%' }} />
+            </div>
+            <div className="field-selection-container">
+                <select value={selectedField} onChange={handleFieldChange}>
+                    <option value="AMP AUTO">Auto AMP</option>
+                    <option value="SPEAKER AUTO">Auto Speaker</option>
+                    <option value="mid notes">Mid Notes</option>
+                    <option value="tele AMP">Tele AMP</option>
+                    <option value="Missed AMP">Missed AMP</option>
+                    <option value="tele Speaker">Tele Speaker</option>
+                    <option value="tele Missed Speaker">Tele Missed Speaker</option>
+                    <option value="Defensive Pins">Defensive Pins</option>
+                    <option value="Shot to Trap">Shot to Trap</option>
+                </select>
+            </div>
+            <div className="chart-container">
+                <Line data={chartData} />
+            </div>
+            <button onClick={handleFetchData}>Fetch Team Data</button>
+        </div>
+    );
+}
+
+export default TeamComparison;
