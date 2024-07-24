@@ -334,6 +334,9 @@ body {
     text-align: left;
   }
   
+  .match-message:hover{
+    transform: scale(1.05);
+  }
   .match-header {
     display: flex;
     justify-content: space-between;
