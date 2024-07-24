@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
-import { FaArrowUp, FaArrowDown, FaEquals } from 'react-icons/fa'; // Import icons
+import { Line } from 'react-chartjs-2';
+import { FaArrowUp, FaArrowDown, FaEquals } from 'react-icons/fa';
 
 function MatchMessages({ dataType }) {
   const [data, setData] = useState([]);
@@ -74,6 +75,39 @@ function MatchMessages({ dataType }) {
     setCurrentPage(pageNumber);
   };
 
+  const getChartData = (teamNumber) => {
+    const teamMatches = data.filter((row) => row['Teams'] === teamNumber);
+    const labels = teamMatches.map((match) => `Match ${match['Match Number']}`);
+    const datasets = [
+      {
+        label: 'AMP AUTO',
+        data: teamMatches.map((match) => parseInt(match['AMP AUTO'], 10)),
+        borderColor: 'rgba(75,192,192,1)',
+        fill: false,
+      },
+      {
+        label: 'SPEAKER AUTO',
+        data: teamMatches.map((match) => parseInt(match['SPEAKER AUTO'], 10)),
+        borderColor: 'rgba(153,102,255,1)',
+        fill: false,
+      },
+      {
+        label: 'mid notes',
+        data: teamMatches.map((match) => parseInt(match['mid notes'], 10)),
+        borderColor: 'rgba(255,159,64,1)',
+        fill: false,
+      },
+      {
+        label: 'tele AMP',
+        data: teamMatches.map((match) => parseInt(match['tele AMP'], 10)),
+        borderColor: 'rgba(255,99,132,1)',
+        fill: false,
+      }
+    ];
+
+    return { labels, datasets };
+  };
+
   return (
     <div className="match-messages-container">
       {loading && (
@@ -83,54 +117,61 @@ function MatchMessages({ dataType }) {
       )}
       {currentMessages.map((row, index) => {
         const analysis = analyzePerformance(row['Teams']);
+        const chartData = getChartData(row['Teams']);
         return (
-          <div key={index} className="match-message">
-            <div className="match-header">
-              <h3>Team {row['Teams']}</h3>
-              <p>Match {row['Match Number']}</p>
+          <div key={index} className="match-message" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="match-info" style={{ flex: 1 }}>
+              <div className="match-header">
+                <h3>Team {row['Teams']}</h3>
+                <p>Match {row['Match Number']}</p>
+              </div>
+              <div className="match-stats">
+                <p><span>AMP AUTO:</span> {row['AMP AUTO']}</p>
+                <p><span>SPEAKER AUTO:</span> {row['SPEAKER AUTO']}</p>
+                <p><span>mid notes:</span> {row['mid notes']}</p>
+                <p><span>tele AMP:</span> {row['tele AMP']}</p>
+              </div>
+              <div className="match-analysis">
+                {typeof analysis === 'string' ? (
+                  <p>{analysis}</p>
+                ) : (
+                  <>
+                    <div className="analysis-section">
+                      <h4>Improvements:</h4>
+                      {analysis.improvements.length > 0 ? (
+                        analysis.improvements.map((item, i) => (
+                          <p key={i}><FaArrowUp size={20} color="green" /> {item}</p>
+                        ))
+                      ) : (
+                        <p>None</p>
+                      )}
+                    </div>
+                    <div className="analysis-section">
+                      <h4>Declines:</h4>
+                      {analysis.declines.length > 0 ? (
+                        analysis.declines.map((item, i) => (
+                          <p key={i}><FaArrowDown size={20} color="red" /> {item}</p>
+                        ))
+                      ) : (
+                        <p>None</p>
+                      )}
+                    </div>
+                    <div className="analysis-section">
+                      <h4>Stable:</h4>
+                      {analysis.stable.length > 0 ? (
+                        analysis.stable.map((item, i) => (
+                          <p key={i}><FaEquals size={20} color="gray" /> {item}</p>
+                        ))
+                      ) : (
+                        <p>None</p>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-            <div className="match-stats">
-              <p><span>AMP AUTO:</span> {row['AMP AUTO']}</p>
-              <p><span>SPEAKER AUTO:</span> {row['SPEAKER AUTO']}</p>
-              {/* Add other metrics as needed */}
-            </div>
-            <div className="match-analysis">
-              {typeof analysis === 'string' ? (
-                <p>{analysis}</p>
-              ) : (
-                <>
-                  <div className="analysis-section">
-                    <h4>Improvements:</h4>
-                    {analysis.improvements.length > 0 ? (
-                      analysis.improvements.map((item, i) => (
-                        <p key={i}><FaArrowUp size={20} color="green" /> {item}</p>
-                      ))
-                    ) : (
-                      <p>None</p>
-                    )}
-                  </div>
-                  <div className="analysis-section">
-                    <h4>Declines:</h4>
-                    {analysis.declines.length > 0 ? (
-                      analysis.declines.map((item, i) => (
-                        <p key={i}><FaArrowDown size={20} color="red" /> {item}</p>
-                      ))
-                    ) : (
-                      <p>None</p>
-                    )}
-                  </div>
-                  <div className="analysis-section">
-                    <h4>Stable:</h4>
-                    {analysis.stable.length > 0 ? (
-                      analysis.stable.map((item, i) => (
-                        <p key={i}><FaEquals size={20} color="gray" /> {item}</p>
-                      ))
-                    ) : (
-                      <p>None</p>
-                    )}
-                  </div>
-                </>
-              )}
+            <div className="match-graph" style={{ width: '1000px', height: '400px' }}>
+              <Line data={chartData} options={{ maintainAspectRatio: false }} />
             </div>
           </div>
         );
