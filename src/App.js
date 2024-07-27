@@ -16,9 +16,11 @@ function App() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [calculatedData, setCalculatedData] = useState([]); // New state for calculated data
+  const [menuOpen, setMenuOpen] = useState(false); // State for menu visibility
 
-  const handleTeamModeChange = (event) => {
-    setTeamMode(event.target.value);
+  const handleTeamModeChange = (mode) => {
+    setTeamMode(mode);
+    setMenuOpen(false); // Close menu after selection
   };
 
   const handleSingleTeamNumberChange = (teamNumber) => {
@@ -99,17 +101,26 @@ function App() {
     setCalculatedData(sortedData);
   };
 
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
   return (
     <div className="app-container">
-      <div className="dropdown-container-teams">
-        <select value={teamMode} onChange={handleTeamModeChange}>
-          <option value="single">Single Team</option>
-          <option value="multiple">Multiple Teams</option>
-          <option value="comparison">Team Comparison</option>
-          <option value="all">All Data</option>
-          <option value="matchMessages">Match Messages</option> {/* New option */}
-        </select>
+      <div className="menu-icon" onClick={toggleMenu}>
+        <div className="menu-line"></div>
+        <div className="menu-line"></div>
+        <div className="menu-line"></div>
       </div>
+      {menuOpen && (
+        <div className="menu">
+          <button onClick={() => handleTeamModeChange('single')}>Single Team</button>
+          <button onClick={() => handleTeamModeChange('multiple')}>Multiple Teams</button>
+          <button onClick={() => handleTeamModeChange('comparison')}>Team Comparison</button>
+          <button onClick={() => handleTeamModeChange('all')}>All Data</button>
+          <button onClick={() => handleTeamModeChange('matchMessages')}>Match Messages</button>
+        </div>
+      )}
       <div className="dropdown-container">
         <select value={dataType} onChange={handleDataTypeChange}>
           <option value="average">Average data</option>
@@ -138,16 +149,16 @@ function App() {
           dataType={dataType}
           onDataTypeChange={handleDataTypeChange}
         />
-      ) : teamMode === 'matchMessages' ? (  // New condition
+      ) : teamMode === 'matchMessages' ? (
         <MatchMessages
           dataType={dataType}
         />
       ) : (
         <AllData
-          data={calculatedData.length ? calculatedData : data} // Use calculated data if available
+          data={calculatedData.length ? calculatedData : data}
           loading={loading}
           dataType={dataType}
-          calculateScores={calculateScores} // Pass down calculateScores function
+          calculateScores={calculateScores}
         />
       )}
     </div>
