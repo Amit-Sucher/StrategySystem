@@ -321,7 +321,7 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
                     <option value="Shot to Trap">Shot to Trap</option>
                 </select>
             </div>
-            <div className="chart-container">
+            <div className="chart-container" style={{ width: '1000px', height: '550px' }}>
                 <Line data={chartData} />
             </div>
         </div>
