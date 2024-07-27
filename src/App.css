@@ -460,3 +460,49 @@ body {
 .menu button:hover {
   transform: scale(1.05);
 }
+
+/* Add styles for Pit Scouting */
+
+.pit-scouting-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 20px;
+  background-color: #22333B;
+  color: #E0E0E0;
+  font-family: 'Roboto', Arial, sans-serif; /* Change the font */
+}
+
+.search-bar {
+  width: 90%;
+  margin-bottom: 20px;
+}
+
+.data-table {
+  margin-top: 20px;
+  width: 90%;
+}
+
+/* Additional styles for MUI table */
+.MuiPaper-root {
+  background-color: #22333B;
+  color: #E0E0E0;
+}
+
+.MuiTableCell-root {
+  color: #E0E0E0;
+  border-color: #4d5255;
+  padding: 8px 16px; /* Add some padding for better readability */
+}
+
+.MuiTableCell-head {
+  background-color: #1BB8CC;
+  color: #22333B;
+  font-weight: bold; /* Make the header font bold */
+}
+
+.MuiTableRow-root:nth-of-type(even) {
+  background-color: #2E3B3F;
+}
