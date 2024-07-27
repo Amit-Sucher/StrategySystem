@@ -506,3 +506,36 @@ body {
 .MuiTableRow-root:nth-of-type(even) {
   background-color: #2E3B3F;
 }
+
+
+.add-column-button, .calculate-button {
+  background-color: #22333B;
+  color: #E0E0E0;
+  border: none;
+  padding: 0.5rem 1rem;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.add-column-button:hover, .calculate-button:hover {
+  background-color: #1b2a34;
+}
+
+.add-column-button {
+  margin-right: 0.5rem;
+}
+
+.remove-column-button {
+  margin-left: 0.5rem;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.remove-column-button:hover {
+  background-color: #cc0000;
+}

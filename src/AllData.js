@@ -37,9 +37,10 @@ const Styles = styled.div`
       font-weight: bold; /* Make the numbers bold */
     }
   }
+
+
 `;
 
-// Mapping of column names to their display names with spaces
 const columnMapping = {
   "Teams": "Teams",
   "AMP AUTO": "Amp Auto",
@@ -56,7 +57,6 @@ const columnMapping = {
   "map": "Map"
 };
 
-// Columns to be shown in the calculation dropdown
 const calculationColumns = [
   "AMP AUTO",
   "SPEAKER AUTO",
@@ -70,8 +70,8 @@ const calculationColumns = [
 ];
 
 const AllData = ({ data, loading, dataType, calculateScores }) => {
-  const [weights, setWeights] = useState(Array(5).fill(0));
-  const [selectedColumns, setSelectedColumns] = useState(Array(5).fill(''));
+  const [weights, setWeights] = useState([0, 0]);
+  const [selectedColumns, setSelectedColumns] = useState(['', '']);
   const [calculatedData, setCalculatedData] = useState([]);
 
   const getColumnMaxValue = (column) => {
@@ -91,7 +91,6 @@ const AllData = ({ data, loading, dataType, calculateScores }) => {
     return '#ffd580'; // Light orange
   };
 
-  // Color coding for the Points column
   const getPointsColor = (value, minValue, maxValue) => {
     if (maxValue === 0) return 'white'; // Avoid division by zero
     const percentage = ((value - minValue) / (maxValue - minValue)) * 100;
@@ -108,7 +107,7 @@ const AllData = ({ data, loading, dataType, calculateScores }) => {
           const maxValue = getColumnMaxValue(key);
           const minValue = getColumnMinValue(key);
           return {
-            Header: key === 'Points' ? 'Points' : columnMapping[key], // Use display name with spaces
+            Header: key === 'Points' ? 'Points' : columnMapping[key],
             accessor: key,
             Cell: ({ value }) => (
               <div style={{ backgroundColor: key === 'Points' ? getPointsColor(parseFloat(value), minValue, maxValue) : getCellColor(parseFloat(value), minValue, maxValue, key) }}>
@@ -128,7 +127,7 @@ const AllData = ({ data, loading, dataType, calculateScores }) => {
         selectedColumns.forEach((col, index) => {
           totalScore += (parseFloat(row[col]) || 0) * (weights[index] / 100);
         });
-        return { ...row, Points: totalScore.toFixed(2) }; // Adding Points column
+        return { ...row, Points: totalScore.toFixed(2) };
       });
       setCalculatedData(updatedData);
     };
@@ -148,8 +147,20 @@ const AllData = ({ data, loading, dataType, calculateScores }) => {
       data: calculatedData,
     },
     useSortBy,
-    useFilters // This will allow sorting and filtering to work independently for each column
+    useFilters
   );
+
+  const addNewColumn = () => {
+    setSelectedColumns([...selectedColumns, '']);
+    setWeights([...weights, 0]);
+  };
+
+  const removeColumn = (index) => {
+    const newSelectedColumns = selectedColumns.filter((_, i) => i !== index);
+    const newWeights = weights.filter((_, i) => i !== index);
+    setSelectedColumns(newSelectedColumns);
+    setWeights(newWeights);
+  };
 
   return (
     <Styles>
@@ -219,8 +230,10 @@ const AllData = ({ data, loading, dataType, calculateScores }) => {
                     }}
                   />
                 </label>
+                <button className="remove-column-button" onClick={() => removeColumn(index)}>Remove</button>
               </div>
             ))}
+            <button className="add-column-button" onClick={addNewColumn}>Add Column</button>
             <button className="calculate-button" onClick={() => calculateScores(selectedColumns, weights)}>Calculate and Sort</button>
           </div>
         </div>
@@ -230,5 +243,3 @@ const AllData = ({ data, loading, dataType, calculateScores }) => {
 };
 
 export default AllData;
-
-/*test */
