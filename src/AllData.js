@@ -230,3 +230,5 @@ const AllData = ({ data, loading, dataType, calculateScores }) => {
 };
 
 export default AllData;
+
+/*test */
