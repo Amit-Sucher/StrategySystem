@@ -6,7 +6,8 @@ import TeamComparison from './TeamComparison';
 import AllData from './AllData';
 import MatchMessages from './MatchMessages';
 import PitScouting from './PitScouting';
-import SuperScoutingAdmin from './SuperScoutingAdmin'; // Import the new component
+import SuperScoutingAdmin from './SuperScoutingAdmin';
+import SuperScoutingAnswers from './SuperScoutingAnswers'; // Import the new component
 import Papa from 'papaparse';
 
 function App() {
@@ -122,7 +123,8 @@ function App() {
                     <button onClick={() => handleTeamModeChange('all')}>All Data</button>
                     <button onClick={() => handleTeamModeChange('matchMessages')}>Match Messages</button>
                     <button onClick={() => handleTeamModeChange('pitScouting')}>Pit Scouting</button>
-                    <button onClick={() => handleTeamModeChange('superScoutingAdmin')}>Super Scouting Admin</button> {/* New button for Super Scouting Admin */}
+                    <button onClick={() => handleTeamModeChange('superScoutingAdmin')}>Super Scouting Admin</button>
+                    <button onClick={() => handleTeamModeChange('superScoutingAnswers')}>Super Scouting Answers</button>
                 </div>
             )}
             <div className="dropdown-container">
@@ -154,15 +156,13 @@ function App() {
                     onDataTypeChange={handleDataTypeChange}
                 />
             ) : teamMode === 'matchMessages' ? (
-                <MatchMessages
-                    dataType={dataType}
-                />
-            ) : teamMode === 'pitScouting' ? ( 
-                <PitScouting
-                    dataType={dataType}
-                />
-            ) : teamMode === 'superScoutingAdmin' ? ( // New condition for Super Scouting Admin
+                <MatchMessages dataType={dataType} />
+            ) : teamMode === 'pitScouting' ? (
+                <PitScouting dataType={dataType} />
+            ) : teamMode === 'superScoutingAdmin' ? (
                 <SuperScoutingAdmin />
+            ) : teamMode === 'superScoutingAnswers' ? (
+                <SuperScoutingAnswers /> 
             ) : (
                 <AllData
                     data={calculatedData.length ? calculatedData : data}
