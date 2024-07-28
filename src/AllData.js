@@ -37,8 +37,6 @@ const Styles = styled.div`
       font-weight: bold; /* Make the numbers bold */
     }
   }
-
-
 `;
 
 const columnMapping = {
@@ -122,7 +120,8 @@ const AllData = ({ data, loading, dataType, calculateScores }) => {
 
   useEffect(() => {
     const calculateScores = () => {
-      const updatedData = data.map(row => {
+      const filteredData = data.filter(row => row.Teams); // Filter out rows without a team name
+      const updatedData = filteredData.map(row => {
         let totalScore = 0;
         selectedColumns.forEach((col, index) => {
           totalScore += (parseFloat(row[col]) || 0) * (weights[index] / 100);
