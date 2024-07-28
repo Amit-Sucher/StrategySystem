@@ -1,4 +1,3 @@
-// App.js
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import SingleTeam from './SingleTeam';
@@ -6,7 +5,8 @@ import MultipleTeams from './MultipleTeams';
 import TeamComparison from './TeamComparison';
 import AllData from './AllData';
 import MatchMessages from './MatchMessages';
-import PitScouting from './PitScouting'; // Import the new component
+import PitScouting from './PitScouting';
+import SuperScoutingAdmin from './SuperScoutingAdmin'; // Import the new component
 import Papa from 'papaparse';
 
 function App() {
@@ -121,7 +121,8 @@ function App() {
                     <button onClick={() => handleTeamModeChange('comparison')}>Team Comparison</button>
                     <button onClick={() => handleTeamModeChange('all')}>All Data</button>
                     <button onClick={() => handleTeamModeChange('matchMessages')}>Match Messages</button>
-                    <button onClick={() => handleTeamModeChange('pitScouting')}>Pit Scouting</button> {/* New button for Pit Scouting */}
+                    <button onClick={() => handleTeamModeChange('pitScouting')}>Pit Scouting</button>
+                    <button onClick={() => handleTeamModeChange('superScoutingAdmin')}>Super Scouting Admin</button> {/* New button for Super Scouting Admin */}
                 </div>
             )}
             <div className="dropdown-container">
@@ -156,10 +157,12 @@ function App() {
                 <MatchMessages
                     dataType={dataType}
                 />
-            ) : teamMode === 'pitScouting' ? ( // New condition for Pit Scouting
+            ) : teamMode === 'pitScouting' ? ( 
                 <PitScouting
                     dataType={dataType}
                 />
+            ) : teamMode === 'superScoutingAdmin' ? ( // New condition for Super Scouting Admin
+                <SuperScoutingAdmin />
             ) : (
                 <AllData
                     data={calculatedData.length ? calculatedData : data}
