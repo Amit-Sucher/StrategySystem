@@ -329,4 +329,3 @@ function SingleTeam({ teamNumber, onTeamNumberChange, dataType, onDataTypeChange
 }
 
 export default SingleTeam;
-

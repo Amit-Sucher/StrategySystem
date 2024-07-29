@@ -160,6 +160,7 @@ const SuperScoutingAnswers = () => {
                             <TableBody>
                                 {filteredData.map((answer, index) => (
                                     <TableRow key={index}>
+                                        <TableCell>{answer['שם']}</TableCell>
                                         <TableCell>{answer['קבוצה']}</TableCell>
                                         <TableCell>{answer['מקצה']}</TableCell>
                                         <TableCell>{answer['תאר אוטונומי']}</TableCell>
@@ -172,7 +173,6 @@ const SuperScoutingAnswers = () => {
                                         <TableCell>{answer['איסוף - רצפה/פידר + זמן']}</TableCell>
                                         <TableCell>{answer['תאר כימיה עם שאר הברית']}</TableCell>
                                         <TableCell>{answer['הערות']}</TableCell>
-                                        <TableCell>{answer['שם']}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
