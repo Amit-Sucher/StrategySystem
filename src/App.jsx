@@ -7,7 +7,8 @@ import AllData from './AllData';
 import MatchMessages from './MatchMessages';
 import PitScouting from './PitScouting';
 import SuperScoutingAdmin from './SuperScoutingAdmin';
-import SuperScoutingAnswers from './SuperScoutingAnswers'; // Import the new component
+import SuperScoutingAnswers from './SuperScoutingAnswers';
+import CanvasComponent from './CanvasComponent'; // Import the new component
 import Papa from 'papaparse';
 
 function App() {
@@ -125,6 +126,7 @@ function App() {
                     <button onClick={() => handleTeamModeChange('pitScouting')}>Pit Scouting</button>
                     <button onClick={() => handleTeamModeChange('superScoutingAdmin')}>Super Scouting Admin</button>
                     <button onClick={() => handleTeamModeChange('superScoutingAnswers')}>Super Scouting Answers</button>
+                    <button onClick={() => handleTeamModeChange('canvas')}>Canvas Drawing</button> 
                 </div>
             )}
             <div className="dropdown-container">
@@ -162,7 +164,9 @@ function App() {
             ) : teamMode === 'superScoutingAdmin' ? (
                 <SuperScoutingAdmin />
             ) : teamMode === 'superScoutingAnswers' ? (
-                <SuperScoutingAnswers /> 
+                <SuperScoutingAnswers />
+            ) : teamMode === 'canvas' ? (
+                <CanvasComponent /> 
             ) : (
                 <AllData
                     data={calculatedData.length ? calculatedData : data}
