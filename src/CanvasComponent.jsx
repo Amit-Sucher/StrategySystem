@@ -1,46 +1,117 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Stage, Layer, Image, Line, Text } from 'react-konva';
 import useImage from 'use-image';
 
 const CanvasComponent = () => {
-  const [image] = useImage('2024Field.png');
+  const [image] = useImage('https://www.chiefdelphi.com/uploads/default/original/3X/a/a/aa745548020a507cf4a07051dcd0faa446607840.png');
   const [lines, setLines] = useState([]);
-  const [texts, setTexts] = useState([]);
+  const [teams, setTeams] = useState([]);
+  const [matches, setMatches] = useState([]);
   const [color, setColor] = useState('#df4b26');
   const [brushSize, setBrushSize] = useState(5);
-  const [text, setText] = useState('');
   const [history, setHistory] = useState([]);
   const [redoHistory, setRedoHistory] = useState([]);
-  const [isEraserActive, setIsEraserActive] = useState(false);
+  const [tool, setTool] = useState('brush'); // brush, eraser
   const isDrawing = useRef(false);
+  const isErasing = useRef(false);
 
   const stageRef = useRef();
 
-  const handleMouseDown = () => {
+  const initialEventKey = '2024isde1';
+  const [eventKey, setEventKey] = useState(initialEventKey);
+
+  const fetchMatches = async (key) => {
+    const webhookEndpoint = `https://www.thebluealliance.com/api/v3/event/${key}/matches/simple`;
+    const response = await fetch(webhookEndpoint, {
+      method: "GET",
+      headers: {
+        "X-TBA-Auth-Key": "J43Af3iggAp3XBvsVaGm5Hbc7IlK6XR8W8WxQhLDlPiQbv6BbW8LWDvVg8Zj9fCV",
+      },
+    });
+    const data = await response.json();
+    // Sort matches numerically
+    data.sort((a, b) => a.match_number - b.match_number);
+    setMatches(data);
+  };
+
+  const fetchTeamColor = async (teamNumber) => {
+    try {
+      const response = await fetch(`https://api.frc-colors.com/v1/team/${teamNumber}`);
+      if (response.ok) {
+        const data = await response.json();
+        return data.colors?.primaryHex || '#000000'; // Use fallback color if primaryHex is not defined
+      }
+    } catch (error) {
+      console.error(`Error fetching color for team ${teamNumber}:`, error);
+    }
+    return '#000000'; // Fallback color if the API fails
+  };
+
+  const handleMatchChange = async (matchKey) => {
+    const match = matches.find(m => m.key === matchKey);
+    if (!match) return;
+
+    const bluePositions = [{ x: 186, y: 240 }, { x: 186, y: 640 }, { x: 186, y: 840 }];
+    const redPositions = [{ x: 1830, y: 840 }, { x: 1830, y: 640 }, { x: 1830, y: 240 }];
+
+    const blueTeams = await Promise.all(
+      match.alliances.blue.team_keys.map(async (team, index) => ({
+        team: team.replace('frc', ''),
+        color: await fetchTeamColor(team.replace('frc', '')),
+        position: bluePositions[index]
+      }))
+    );
+
+    const redTeams = await Promise.all(
+      match.alliances.red.team_keys.map(async (team, index) => ({
+        team: team.replace('frc', ''),
+        color: await fetchTeamColor(team.replace('frc', '')),
+        position: redPositions[index]
+      }))
+    );
+
+    setTeams([...blueTeams, ...redTeams]);
+  };
+
+  const handleMouseDown = (e) => {
+    if (tool === 'eraser') {
+      isErasing.current = true;
+      const pos = stageRef.current.getPointerPosition();
+      handleErase(pos);
+      return;
+    }
+
     isDrawing.current = true;
     const pos = stageRef.current.getPointerPosition();
-    setHistory([...history, { lines, texts }]);
+    setHistory([...history, { lines }]);
     setRedoHistory([]);
-    if (isEraserActive) {
-      handleErase(pos);
-    } else {
-      setLines([...lines, { points: [pos.x, pos.y], color, brushSize }]);
-    }
+    setLines([...lines, { points: [pos.x, pos.y], color, brushSize }]);
   };
 
   const handleMouseMove = () => {
-    if (!isDrawing.current || isEraserActive) return;
     const stage = stageRef.current;
-    const point = stage.getPointerPosition();
+    const pos = stage.getPointerPosition();
+
+    // Print mouse coordinates
+    console.log(`Mouse coordinates: x=${pos.x}, y=${pos.y}`);
+
+    if (isErasing.current) {
+      handleErase(pos);
+      return;
+    }
+
+    if (!isDrawing.current) return;
+
     setLines((prevLines) => {
       const lastLine = prevLines[prevLines.length - 1];
-      lastLine.points = lastLine.points.concat([point.x, point.y]);
+      lastLine.points = lastLine.points.concat([pos.x, pos.y]);
       return [...prevLines.slice(0, -1), lastLine];
     });
   };
 
   const handleMouseUp = () => {
     isDrawing.current = false;
+    isErasing.current = false;
   };
 
   const handleErase = (pos) => {
@@ -59,54 +130,100 @@ const CanvasComponent = () => {
     setLines((prevLines) =>
       prevLines.filter((line) => !isNearLine(line.points, pos))
     );
-
-    const isNearText = (textPos, pos) =>
-      Math.abs(textPos.x - pos.x) < eraseRadius && Math.abs(textPos.y - pos.y) < eraseRadius;
-
-    setTexts((prevTexts) =>
-      prevTexts.filter((text) => !isNearText({ x: text.x, y: text.y }, pos))
-    );
   };
 
   const handleUndo = () => {
     if (history.length === 0) return;
-    setRedoHistory([{ lines, texts }, ...redoHistory]);
+    setRedoHistory([{ lines }]);
     const previousState = history[history.length - 1];
     setLines(previousState.lines);
-    setTexts(previousState.texts);
     setHistory(history.slice(0, -1));
   };
 
   const handleRedo = () => {
     if (redoHistory.length === 0) return;
-    setHistory([...history, { lines, texts }]);
+    setHistory([...history, { lines }]);
     const nextState = redoHistory[0];
     setLines(nextState.lines);
-    setTexts(nextState.texts);
     setRedoHistory(redoHistory.slice(1));
   };
 
-  const handleAddText = () => {
-    const pos = stageRef.current.getPointerPosition();
-    setHistory([...history, { lines, texts }]);
-    setRedoHistory([]);
-    setTexts([...texts, { text, x: pos.x, y: pos.y, fontSize: 20, color }]);
-    setText('');
-  };
+  useEffect(() => {
+    if (image) {
+      const stage = stageRef.current;
+      const stageWidth = stage.width();
+      const stageHeight = stage.height();
+      image.width = stageWidth;
+      image.height = stageHeight;
+    }
+  }, [image]);
+
+  useEffect(() => {
+    fetchMatches(eventKey);
+  }, [eventKey]);
 
   return (
     <div className="canvas-container">
+      <div className="controls">
+        <input
+          type="text"
+          value={eventKey}
+          onChange={(e) => setEventKey(e.target.value)}
+          placeholder="Enter Event Code"
+        />
+        <select onChange={(e) => handleMatchChange(e.target.value)}>
+          <option value="">Select Match</option>
+          {matches.map((match) => (
+            <option key={match.key} value={match.key}>
+              {`${match.comp_level.toUpperCase()} Match ${match.match_number}`}
+            </option>
+          ))}
+        </select>
+        <button onClick={handleUndo}>Undo</button>
+        <button onClick={handleRedo}>Redo</button>
+        <div className="color-control">
+          <label>Brush Color: </label>
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+          />
+        </div>
+        <div className="size-control">
+          <label>Brush Size: </label>
+          <input
+            type="range"
+            min="1"
+            max="50"
+            value={brushSize}
+            onChange={(e) => setBrushSize(e.target.value)}
+          />
+          {brushSize}
+        </div>
+        <button
+          onClick={() => {
+            if (tool === 'brush') {
+              setTool('eraser');
+            } else {
+              setTool('brush');
+            }
+          }}
+          style={{ backgroundColor: tool === 'eraser' ? '#ff0000' : '#ccc' }}
+        >
+          {tool === 'brush' ? 'Switch to Eraser' : 'Switch to Brush'}
+        </button>
+      </div>
       <Stage
-        width={window.innerWidth * 0.8}
-        height={window.innerHeight * 0.8}
+        width={window.innerWidth}
+        height={window.innerHeight}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         ref={stageRef}
-        style={{ border: '1px solid black', margin: '0 auto' }}
+        style={{ border: '1px solid black' }}
       >
         <Layer>
-          <Image image={image} />
+          <Image image={image} width={window.innerWidth} height={window.innerHeight} />
           {lines.map((line, i) => (
             <Line
               key={i}
@@ -118,57 +235,19 @@ const CanvasComponent = () => {
               globalCompositeOperation="source-over"
             />
           ))}
-          {texts.map((txt, i) => (
+          {teams.map((team, i) => (
             <Text
               key={i}
-              text={txt.text}
-              x={txt.x}
-              y={txt.y}
-              fontSize={txt.fontSize}
-              fill={txt.color}
+              text={team.team}
+              x={team.position.x}
+              y={team.position.y}
+              fontSize={30} // Increased font size
+              fontStyle="bold" // Bold text
+              fill={team.color}
             />
           ))}
         </Layer>
       </Stage>
-      <div className="controls">
-        <button onClick={handleUndo}>Undo</button>
-        <button onClick={handleRedo}>Redo</button>
-        <div>
-          <label>Brush Color: </label>
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            disabled={isEraserActive}
-          />
-        </div>
-        <div>
-          <label>Brush Size: </label>
-          <input
-            type="range"
-            min="1"
-            max="50"
-            value={brushSize}
-            onChange={(e) => setBrushSize(e.target.value)}
-          />
-          {brushSize}
-        </div>
-        <div>
-          <label>Text: </label>
-          <input
-            type="text"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            disabled={isEraserActive}
-          />
-          <button onClick={handleAddText} disabled={isEraserActive}>
-            Add Text
-          </button>
-        </div>
-        <button onClick={() => setIsEraserActive(!isEraserActive)}>
-          {isEraserActive ? 'Switch to Brush' : 'Switch to Eraser'}
-        </button>
-      </div>
       <style jsx>{`
         .canvas-container {
           display: flex;
@@ -176,16 +255,44 @@ const CanvasComponent = () => {
           align-items: center;
           justify-content: center;
           height: 100vh;
+          width: 100vw;
+          overflow: hidden;
         }
         .controls {
           display: flex;
           justify-content: center;
           gap: 1rem;
-          margin-top: 1rem;
+          background-color: #f0f0f0;
+          padding: 1rem;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          position: fixed;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 10;
+        }
+        .color-control,
+        .size-control {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
         }
         button {
           padding: 0.5rem 1rem;
           font-size: 1rem;
+          background-color: #007bff;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        button:disabled {
+          background-color: #ccc;
+          cursor: not-allowed;
+        }
+        label {
+          font-weight: bold;
         }
       `}</style>
     </div>
