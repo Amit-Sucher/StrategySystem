@@ -1,9 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Stage, Layer, Image, Line, Text } from 'react-konva';
+import { LinearProgress, Box, Typography } from '@mui/material';
+import Papa from 'papaparse';
+import h337 from 'heatmap.js';
 import useImage from 'use-image';
 
 const CanvasComponent = () => {
-  const [image] = useImage('https://www.chiefdelphi.com/uploads/default/original/3X/a/a/aa745548020a507cf4a07051dcd0faa446607840.png'); // Use the uploaded image
+  const [image] = useImage('https://www.chiefdelphi.com/uploads/default/original/3X/a/a/aa745548020a507cf4a07051dcd0faa446607840.png');
   const [lines, setLines] = useState([]);
   const [teams, setTeams] = useState([]);
   const [matches, setMatches] = useState([]);
@@ -16,6 +19,8 @@ const CanvasComponent = () => {
   const isErasing = useRef(false);
 
   const stageRef = useRef();
+  const heatmapContainerRef = useRef(null);
+  const heatmapInstanceRef = useRef(null);
 
   const initialEventKey = '2024isde1';
   const [eventKey, setEventKey] = useState(initialEventKey);
@@ -32,7 +37,6 @@ const CanvasComponent = () => {
       },
     });
     const data = await response.json();
-    // Sort matches numerically
     data.sort((a, b) => a.match_number - b.match_number);
     setMatches(data);
   };
@@ -50,7 +54,7 @@ const CanvasComponent = () => {
         if (teamData.colors) {
           colors[team] = teamData.colors.primaryHex;
         } else {
-          colors[team] = '#00FF00'; // Default color if not available
+          colors[team] = '#00FF00';
         }
       }
       return colors;
@@ -71,9 +75,9 @@ const CanvasComponent = () => {
     ];
 
     const redPositions = [
-      { x: 1700 * widthRatio, y: 200 * heightRatio },
-      { x: 1700 * widthRatio, y: 600 * heightRatio },
-      { x: 1700 * widthRatio, y: 800 * heightRatio }
+      { x:  1700 * widthRatio, y: 200 * heightRatio },
+      { x:  1700 * widthRatio, y: 600 * heightRatio },
+      { x:  1700 * widthRatio, y: 800 * heightRatio }
     ];
 
     return { bluePositions, redPositions };
@@ -208,6 +212,173 @@ const CanvasComponent = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [matches]);
 
+  const [data, setData] = useState([]);
+  const [teamData, setTeamData] = useState(Array(6).fill(null));
+  const [teamColors, setTeamColors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [selectedAlliance, setSelectedAlliance] = useState('blue'); // Red or Blue alliance
+
+  const fetchData = async (sheetType) => {
+    setLoading(true);
+    let gid = '564661292';
+
+    if (sheetType === 'lastMatch') {
+      gid = '1741346213';
+    } else if (sheetType === 'last3Matches') {
+      gid = '1660695738';
+    }
+
+    const publicSpreadsheetUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRojRhLgZSPXJopPdni1V4Z-inXXY3a__2NaVMsoJHPs9d25ZQ7t56QX67mncr6yo-w4B8WCWyHFe2m/pub?output=csv&gid=${gid}`;
+    const cacheBuster = `cacheBuster=${new Date().getTime()}`;
+    const urlWithCacheBuster = `${publicSpreadsheetUrl}&${cacheBuster}`;
+
+    try {
+      Papa.parse(urlWithCacheBuster, {
+        download: true,
+        header: true,
+        complete: function (results) {
+          console.log('Fetched data:', results.data);
+          setData(results.data);
+          setLoading(false);
+        },
+        error: function (error) {
+          console.warn('Error fetching data from Google Sheets', error);
+          setLoading(false);
+        },
+      });
+    } catch (error) {
+      console.error('Fetching data failed', error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData('allMatches');
+    fetchTeamColors(teams.map(team => team.team));
+
+    const intervalId = setInterval(() => fetchData('allMatches'), 60000); /* refresh every 60 seconds */
+
+    return () => clearInterval(intervalId);
+  }, [teams]);
+
+  useEffect(() => {
+    const newTeamData = teams.map(team => data.find(row => row['Teams'] === team.team) || null);
+    setTeamData(newTeamData);
+    fetchTeamColors(teams.map(team => team.team));
+  }, [data, teams]);
+
+  useEffect(() => {
+    if (heatmapInstanceRef.current && teams.length > 0) {
+      updateHeatmap(teamData.filter((_, index) => selectedAlliance === 'blue' ? index < 3 : index >= 3));
+    }
+  }, [teamData, teamColors, selectedAlliance]);
+
+  const parseMapData = (mapString) => {
+    const coordinatePairs = mapString.match(/\(\d+,\d+\)/g);
+    if (!coordinatePairs) throw new Error('Invalid map data format');
+
+    return coordinatePairs.map((pair) => {
+      const [x, y] = pair.slice(1, -1).split(',').map(Number);
+      return { x, y, value: 1 };
+    });
+  };
+
+  const updateHeatmap = (teamsData) => {
+    if (!heatmapInstanceRef.current) return;
+
+    const fieldWidth = 10;
+    const fieldHeight = 10;
+    const stage = stageRef.current;
+    const imageWidth = stage.width();
+    const imageHeight = stage.height();
+
+    const mapCoordinatesToImage = (fieldCoords, imgWidth, imgHeight, fieldWidth, fieldHeight) => {
+      return fieldCoords.map((coord) => ({
+        x: (coord.x / fieldWidth) * imgWidth,
+        y: (coord.y / fieldHeight) * imgHeight,
+        value: 1,
+      }));
+    };
+
+    heatmapInstanceRef.current.setData({ max: 1, data: [] });
+
+    teamsData.forEach((team) => {
+      if (team && team.map) {
+        const coords = parseMapData(team.map);
+        const imageCoordinates = mapCoordinatesToImage(coords, imageWidth, imageHeight, fieldWidth, fieldHeight);
+
+        const data = {
+          max: 1,
+          data: imageCoordinates,
+        };
+
+        heatmapInstanceRef.current.addData(data.data);
+      }
+    });
+  };
+
+  const createHeatmapInstance = (container) => {
+    return h337.create({
+      container: container,
+      radius: 20,
+      maxOpacity: 0.6,
+      minOpacity: 0.1,
+      blur: 0.9,
+      gradient: {
+        0.0: 'blue',
+        1.0: 'red',
+      },
+    });
+  };
+
+  useEffect(() => {
+    if (!heatmapInstanceRef.current) {
+      heatmapInstanceRef.current = createHeatmapInstance(stageRef.current.content);
+    }
+
+    return () => {
+      if (heatmapInstanceRef.current) {
+        heatmapInstanceRef.current._renderer.canvas.parentNode.removeChild(heatmapInstanceRef.current._renderer.canvas);
+        heatmapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  const calculateTotalNotes = (team) => {
+    return parseInt(team?.['SPEAKER AUTO'] || 0) + parseInt(team?.['tele Speaker'] || 0);
+  };
+
+  const calculateClimbPoints = (team) => {
+    return (parseInt(team?.['Shot to Trap'] || 0) * 5);
+  };
+
+  const renderProgressBars = () => {
+    const teams = selectedAlliance === 'blue' ? teamData.slice(0, 3) : teamData.slice(3);
+    let totalNotes = 0;
+    let totalClimbPoints = 0;
+
+    teams.forEach(team => {
+      totalNotes += calculateTotalNotes(team);
+      totalClimbPoints += calculateClimbPoints(team);
+    });
+
+    const notesPercentage = Math.min((totalNotes / 25) * 100, 100);
+    const climbPercentage = Math.min((totalClimbPoints / 10) * 100, 100);
+
+    return (
+      <div className="progress-bars-container">
+        <div className="progress-bar">
+          <Typography variant="body2" color="textSecondary">Notes: {totalNotes} / 25</Typography>
+          <LinearProgress variant="determinate" value={notesPercentage} className="custom-progress-bar" />
+        </div>
+        <div className="progress-bar">
+          <Typography variant="body2" color="textSecondary">Climb RP: {totalClimbPoints} / 10</Typography>
+          <LinearProgress variant="determinate" value={climbPercentage} className="custom-progress-bar" />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="canvas-container">
       <div className="controls">
@@ -266,7 +437,7 @@ const CanvasComponent = () => {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         ref={stageRef}
-        style={{ border: '1px solid black' }}
+        style={{ border: '1px solid black', position: 'relative' }}
       >
         <Layer>
           <Image image={image} width={window.innerWidth} height={window.innerHeight} />
@@ -294,6 +465,19 @@ const CanvasComponent = () => {
           ))}
         </Layer>
       </Stage>
+      <div className="field-selection-container">
+        <select value={selectedAlliance} onChange={(e) => setSelectedAlliance(e.target.value)}>
+          <option value="blue">Blue Alliance</option>
+          <option value="red">Red Alliance</option>
+        </select>
+      </div>
+      {loading && (
+        <div className="spinner-container">
+          <div className="spinner"></div>
+        </div>
+      )}
+      {renderProgressBars()}
+      <div id="heatmapContainer" className="heatmap-container" ref={heatmapContainerRef} />
       <style jsx>{`
         .canvas-container {
           display: flex;
@@ -302,7 +486,6 @@ const CanvasComponent = () => {
           justify-content: center;
           height: 100vh;
           width: 100vw;
-          overflow: hidden;
         }
         .controls {
           display: flex;
@@ -339,6 +522,21 @@ const CanvasComponent = () => {
         }
         label {
           font-weight: bold;
+        }
+        .field-selection-container {
+          margin-top: 1rem;
+        }
+        .progress-bars-container {
+          margin: 1rem;
+          width: 100%;
+          max-width: 600px;
+        }
+        .progress-bar {
+          margin-bottom: 1rem;
+        }
+        .heatmap-container {
+          width: 100%;
+          height: 500px;
         }
       `}</style>
     </div>
