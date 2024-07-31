@@ -3,7 +3,7 @@ import { Stage, Layer, Image, Line, Text } from 'react-konva';
 import useImage from 'use-image';
 
 const CanvasComponent = () => {
-  const [image] = useImage('https://www.chiefdelphi.com/uploads/default/original/3X/a/a/aa745548020a507cf4a07051dcd0faa446607840.png');
+  const [image] = useImage('https://www.chiefdelphi.com/uploads/default/original/3X/a/a/aa745548020a507cf4a07051dcd0faa446607840.png'); // Use the uploaded image
   const [lines, setLines] = useState([]);
   const [teams, setTeams] = useState([]);
   const [matches, setMatches] = useState([]);
@@ -20,6 +20,9 @@ const CanvasComponent = () => {
   const initialEventKey = '2024isde1';
   const [eventKey, setEventKey] = useState(initialEventKey);
 
+  const originalWidth = 1920;
+  const originalHeight = 1080;
+
   const fetchMatches = async (key) => {
     const webhookEndpoint = `https://www.thebluealliance.com/api/v3/event/${key}/matches/simple`;
     const response = await fetch(webhookEndpoint, {
@@ -34,41 +37,72 @@ const CanvasComponent = () => {
     setMatches(data);
   };
 
-  const fetchTeamColor = async (teamNumber) => {
+  const fetchTeamColors = async (teamNumbers) => {
+    const teams = teamNumbers.filter(Boolean).join('&team=');
+    if (!teams) return {};
+
     try {
-      const response = await fetch(`https://api.frc-colors.com/v1/team/${teamNumber}`);
-      if (response.ok) {
-        const data = await response.json();
-        return data.colors?.primaryHex || '#000000'; // Use fallback color if primaryHex is not defined
+      const response = await fetch(`https://api.frc-colors.com/v1/team?team=${teams}`);
+      const data = await response.json();
+      const colors = {};
+      for (const team in data.teams) {
+        const teamData = data.teams[team];
+        if (teamData.colors) {
+          colors[team] = teamData.colors.primaryHex;
+        } else {
+          colors[team] = '#00FF00'; // Default color if not available
+        }
       }
+      return colors;
     } catch (error) {
-      console.error(`Error fetching color for team ${teamNumber}:`, error);
+      console.error('Error fetching team colors:', error);
+      return {};
     }
-    return '#000000'; // Fallback color if the API fails
+  };
+
+  const calculateRelativePositions = (width, height) => {
+    const widthRatio = width / originalWidth;
+    const heightRatio = height / originalHeight;
+
+    const bluePositions = [
+      { x: 135 * widthRatio, y: 200 * heightRatio },
+      { x: 135 * widthRatio, y: 600 * heightRatio },
+      { x: 135 * widthRatio, y: 800 * heightRatio }
+    ];
+
+    const redPositions = [
+      { x: 1700 * widthRatio, y: 200 * heightRatio },
+      { x: 1700 * widthRatio, y: 600 * heightRatio },
+      { x: 1700 * widthRatio, y: 800 * heightRatio }
+    ];
+
+    return { bluePositions, redPositions };
   };
 
   const handleMatchChange = async (matchKey) => {
     const match = matches.find(m => m.key === matchKey);
     if (!match) return;
 
-    const bluePositions = [{ x: 186, y: 240 }, { x: 186, y: 640 }, { x: 186, y: 840 }];
-    const redPositions = [{ x: 1830, y: 840 }, { x: 1830, y: 640 }, { x: 1830, y: 240 }];
+    const blueTeamNumbers = match.alliances.blue.team_keys.map(team => team.replace('frc', ''));
+    const redTeamNumbers = match.alliances.red.team_keys.map(team => team.replace('frc', ''));
 
-    const blueTeams = await Promise.all(
-      match.alliances.blue.team_keys.map(async (team, index) => ({
-        team: team.replace('frc', ''),
-        color: await fetchTeamColor(team.replace('frc', '')),
-        position: bluePositions[index]
-      }))
-    );
+    const blueTeamColors = await fetchTeamColors(blueTeamNumbers);
+    const redTeamColors = await fetchTeamColors(redTeamNumbers);
 
-    const redTeams = await Promise.all(
-      match.alliances.red.team_keys.map(async (team, index) => ({
-        team: team.replace('frc', ''),
-        color: await fetchTeamColor(team.replace('frc', '')),
-        position: redPositions[index]
-      }))
-    );
+    const stage = stageRef.current;
+    const { bluePositions, redPositions } = calculateRelativePositions(stage.width(), stage.height());
+
+    const blueTeams = blueTeamNumbers.map((team, index) => ({
+      team,
+      color: blueTeamColors[team] || '#00FF00',
+      position: bluePositions[index]
+    }));
+
+    const redTeams = redTeamNumbers.map((team, index) => ({
+      team,
+      color: redTeamColors[team] || '#00FF00',
+      position: redPositions[index]
+    }));
 
     setTeams([...blueTeams, ...redTeams]);
   };
@@ -160,7 +194,19 @@ const CanvasComponent = () => {
 
   useEffect(() => {
     fetchMatches(eventKey);
+    setTeams([]); // Reset teams when the event key changes
   }, [eventKey]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (matches.length > 0) {
+        handleMatchChange(matches[0].key); // Adjust positions based on the first match or the current match
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [matches]);
 
   return (
     <div className="canvas-container">
