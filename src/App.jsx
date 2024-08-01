@@ -8,7 +8,8 @@ import MatchMessages from './MatchMessages';
 import PitScouting from './PitScouting';
 import SuperScoutingAdmin from './SuperScoutingAdmin';
 import SuperScoutingAnswers from './SuperScoutingAnswers';
-import CanvasComponent from './CanvasComponent'; // Import the new component
+import CanvasComponent from './CanvasComponent';
+import StrategyCalculator from './StrategyCalculator';
 import Papa from 'papaparse';
 
 function App() {
@@ -49,7 +50,7 @@ function App() {
 
     const fetchData = async (sheetType) => {
         setLoading(true);
-        let gid = '564661292';
+        let gid = '368108442'; // Default GID for allMatches sheet
 
         if (sheetType === 'lastMatch') {
             gid = '1741346213';
@@ -66,7 +67,7 @@ function App() {
                 download: true,
                 header: true,
                 complete: function (results) {
-                    setData(results.data);
+                    setData(results.data.reverse()); // Reverse the order of data
                     setLoading(false);
                 },
                 error: function (error) {
@@ -126,7 +127,8 @@ function App() {
                     <button onClick={() => handleTeamModeChange('pitScouting')}>Pit Scouting</button>
                     <button onClick={() => handleTeamModeChange('superScoutingAdmin')}>Super Scouting Admin</button>
                     <button onClick={() => handleTeamModeChange('superScoutingAnswers')}>Super Scouting Answers</button>
-                    <button onClick={() => handleTeamModeChange('canvas')}>Canvas Drawing</button> 
+                    <button onClick={() => handleTeamModeChange('canvas')}>Canvas Drawing</button>
+                    <button onClick={() => handleTeamModeChange('strategyCalculator')}>Strategy Calculator</button> {/* Add this line */}
                 </div>
             )}
             <div className="dropdown-container">
@@ -167,6 +169,12 @@ function App() {
                 <SuperScoutingAnswers />
             ) : teamMode === 'canvas' ? (
                 <CanvasComponent /> 
+            ) : teamMode === 'strategyCalculator' ? (
+                <StrategyCalculator
+                    gid="564661292" // Replace with your GID for the allMatches sheet or appropriate GID
+                    dataType={dataType}
+                    teamNumbers={multipleTeamNumbers} // Pass the team numbers
+                />
             ) : (
                 <AllData
                     data={calculatedData.length ? calculatedData : data}
