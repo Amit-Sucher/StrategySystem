@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
+import './App.css'; // Import the CSS file
 
 const StrategyCalculator = ({ gid, dataType, teamNumbers }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [redCycles, setRedCycles] = useState(null);
-  const [blueCycles, setBlueCycles] = useState(null);
+  const [redResults, setRedResults] = useState(null);
+  const [blueResults, setBlueResults] = useState(null);
+  const [currentTeamNumbers, setCurrentTeamNumbers] = useState([...teamNumbers]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -21,7 +23,6 @@ const StrategyCalculator = ({ gid, dataType, teamNumbers }) => {
           const fetchedData = results.data.reverse(); // Reverse the order of data
           setData(fetchedData);
           setLoading(false);
-          calculateStrategy(fetchedData, teamNumbers); // Process data to determine cycles
         },
         error: function (error) {
           console.warn('Error fetching data from Google Sheets', error);
@@ -36,7 +37,20 @@ const StrategyCalculator = ({ gid, dataType, teamNumbers }) => {
 
   useEffect(() => {
     fetchData();
-  }, [dataType, teamNumbers, gid]);
+  }, [dataType, gid]);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (data.length > 0) {
+      calculateStrategy(data, currentTeamNumbers);
+    }
+  };
+
+  const handleTeamNumberChange = (index, event) => {
+    const newTeamNumbers = [...currentTeamNumbers];
+    newTeamNumbers[index] = event.target.value;
+    setCurrentTeamNumbers(newTeamNumbers);
+  };
 
   const calculateStrategy = (data, teamNumbers) => {
     const redTeamNumbers = teamNumbers.slice(0, 3);
@@ -48,102 +62,139 @@ const StrategyCalculator = ({ gid, dataType, teamNumbers }) => {
     const redCycleData = calculateCycles(redRobots, 'Red');
     const blueCycleData = calculateCycles(blueRobots, 'Blue');
 
-    setRedCycles(redCycleData);
-    setBlueCycles(blueCycleData);
+    setRedResults(redCycleData);
+    setBlueResults(blueCycleData);
   };
 
   const calculateCycles = (robots, alliance) => {
     console.log(`Calculating cycles for ${alliance} alliance`);
 
-    const totalNotesSpeaker = robots.reduce((sum, robot) => {
-      const speakerAuto = parseFloat(robot["SPEAKER AUTO"]) || 0;
-      const teleSpeaker = parseFloat(robot["tele Speaker"]) || 0;
-      console.log(`Adding SPEAKER AUTO (${speakerAuto}) and Tele Speaker (${teleSpeaker}) for team ${robot["Teams"]}`);
-      return sum + speakerAuto + teleSpeaker;
-    }, 0);
+    // Calculate total notes for speaker and amp in auto and tele phases
+    const totalSpeakerAuto = robots.reduce((sum, robot) => sum + (parseFloat(robot["SPEAKER AUTO"]) || 0), 0);
+    const totalAmpAuto = robots.reduce((sum, robot) => sum + (parseFloat(robot["AMP AUTO"]) || 0), 0);
 
-    const totalNotesAmp = robots.reduce((sum, robot) => {
-      const ampAuto = parseFloat(robot["AMP AUTO"]) || 0;
-      const teleAmp = parseFloat(robot["tele AMP"]) || 0;
-      console.log(`Adding AMP AUTO (${ampAuto}) and Tele AMP (${teleAmp}) for team ${robot["Teams"]}`);
-      return sum + ampAuto + teleAmp;
-    }, 0);
+    const totalSpeakerTele = robots.reduce((sum, robot) => sum + (parseFloat(robot["tele Speaker"]) || 0), 0);
+    const totalAmpTele = robots.reduce((sum, robot) => sum + (parseFloat(robot["tele AMP"]) || 0), 0);
 
-    // New calculation logic
-    const avgNotesSpeaker = totalNotesSpeaker / robots.length;
-    const avgNotesAmp = totalNotesAmp / robots.length;
+    const totalNotesSpeaker = totalSpeakerAuto + totalSpeakerTele;
+    const totalNotesAmp = totalAmpAuto + totalAmpTele;
 
-    const cyclesAmp = Math.floor(avgNotesAmp / 2);
-    const remainingNotesAmp = avgNotesAmp % 2;
+    // Calculate full amplification cycles using tele notes only
+    const fullAmplificationCycles = Math.min(Math.floor(totalSpeakerTele / 4), Math.floor(totalAmpTele / 2));
+    const remainingSpeakerTele = totalSpeakerTele - (fullAmplificationCycles * 4);
+    const remainingAmpTele = totalAmpTele - (fullAmplificationCycles * 2);
 
-    const cyclesSpeaker = Math.floor(avgNotesSpeaker / 2);
-    const remainingNotesSpeaker = avgNotesSpeaker % 2;
+    // Calculate partial amplification cycles
+    const partialAmplificationCycles = remainingAmpTele >= 2 && remainingSpeakerTele > 0 ? 1 : 0;
+    const speakerInPartialCycle = partialAmplificationCycles ? remainingSpeakerTele : 0;
+    const remainingAmpAfterPartial = partialAmplificationCycles ? remainingAmpTele - 2 : remainingAmpTele;
+    const remainingSpeakerAfterPartial = partialAmplificationCycles ? 0 : remainingSpeakerTele;
 
-    const notesPerAmplification = (totalNotesSpeaker + totalNotesAmp) / 2;
+    // Points calculation
+    const ampPerScore = 1;
+    const speakerPerScore = 2;
+    const speakerAmplifiedPerScore = 5;
 
-    console.log(`Total Speaker Notes: ${totalNotesSpeaker}`);
-    console.log(`Total AMP Notes: ${totalNotesAmp}`);
-    console.log(`Average Speaker Notes per Robot: ${avgNotesSpeaker}`);
-    console.log(`Average AMP Notes per Robot: ${avgNotesAmp}`);
-    console.log(`Cycles for AMP: ${cyclesAmp}`);
-    console.log(`Cycles for Speaker: ${cyclesSpeaker}`);
-    console.log(`Notes per Amplification: ${notesPerAmplification}`);
+    const pointsAuto = (totalSpeakerAuto * 5) + (totalAmpAuto * 2);
+    const pointsFullAmplified = fullAmplificationCycles * ((speakerAmplifiedPerScore * 4) + (ampPerScore * 2));
+    const pointsPartialAmplified = speakerInPartialCycle * speakerAmplifiedPerScore;
+    const pointsRemaining = (remainingSpeakerAfterPartial * speakerPerScore) + (remainingAmpAfterPartial * ampPerScore);
+
+    const potentialPoints = pointsAuto + pointsFullAmplified + pointsPartialAmplified + pointsRemaining;
+
+    console.log(`Total Speaker Notes: ${totalNotesSpeaker.toFixed(2)}`);
+    console.log(`Total AMP Notes: ${totalNotesAmp.toFixed(2)}`);
+    console.log(`Full Amplification Cycles: ${fullAmplificationCycles}`);
+    console.log(`Partial Amplification Cycles: ${partialAmplificationCycles}`);
+    console.log(`Remaining AMP Notes: ${remainingAmpAfterPartial}`);
+    console.log(`Remaining Speaker Notes: ${remainingSpeakerAfterPartial}`);
+    console.log(`Potential Points: ${potentialPoints}`);
 
     return {
-      totalNotesSpeaker,
-      totalNotesAmp,
-      cyclesSpeaker,
-      cyclesAmp,
-      remainingNotesSpeaker,
-      remainingNotesAmp,
-      notesPerAmplification
+      totalNotesSpeaker: totalNotesSpeaker.toFixed(2),
+      totalNotesAmp: totalNotesAmp.toFixed(2),
+      fullAmplificationCycles,
+      partialAmplificationCycles,
+      speakerInPartialCycle: speakerInPartialCycle.toFixed(2),
+      remainingSpeaker: remainingSpeakerAfterPartial.toFixed(2),
+      remainingAmp: remainingAmpAfterPartial.toFixed(2),
+      potentialPoints
     };
   };
 
   return (
-    <div>
+    <div className="strategy-calculator">
       {loading ? (
         <div>Loading...</div>
       ) : (
         <div>
           <h2>Recommended Strategy</h2>
-          {teamNumbers.length === 6 && (
-            <>
-              <div>
+          {currentTeamNumbers.length === 6 && (
+            <form onSubmit={handleSubmit}>
+              <div className="alliance-section">
                 <h3>Red Alliance</h3>
-                <p>Teams: {teamNumbers.slice(0, 3).join(', ')}</p>
-                {redCycles ? (
-                  <div>
-                    <p>Total Speaker Notes: {redCycles.totalNotesSpeaker}</p>
-                    <p>Total AMP Notes: {redCycles.totalNotesAmp}</p>
-                    <p>Average Speaker Notes per Robot: {redCycles.avgNotesSpeaker}</p>
-                    <p>Average AMP Notes per Robot: {redCycles.avgNotesAmp}</p>
-                    <p>Cycles for AMP: {redCycles.cyclesAmp}</p>
-                    <p>Cycles for Speaker: {redCycles.cyclesSpeaker}</p>
-                    <p>Notes per Amplification: {redCycles.notesPerAmplification}</p>
+                {currentTeamNumbers.slice(0, 3).map((teamNumber, index) => (
+                  <div key={index} className="team-input">
+                    <label>
+                      Team {index + 1}:
+                      <input
+                        type="text"
+                        value={teamNumber}
+                        onChange={(e) => handleTeamNumberChange(index, e)}
+                      />
+                    </label>
                   </div>
-                ) : (
-                  <p>No data available for calculations</p>
-                )}
+                ))}
               </div>
-              <div>
+              <div className="alliance-section">
                 <h3>Blue Alliance</h3>
-                <p>Teams: {teamNumbers.slice(3).join(', ')}</p>
-                {blueCycles ? (
-                  <div>
-                    <p>Total Speaker Notes: {blueCycles.totalNotesSpeaker}</p>
-                    <p>Total AMP Notes: {blueCycles.totalNotesAmp}</p>
-                    <p>Average Speaker Notes per Robot: {blueCycles.avgNotesSpeaker}</p>
-                    <p>Average AMP Notes per Robot: {blueCycles.avgNotesAmp}</p>
-                    <p>Cycles for AMP: {blueCycles.cyclesAmp}</p>
-                    <p>Cycles for Speaker: {blueCycles.cyclesSpeaker}</p>
-                    <p>Notes per Amplification: {blueCycles.notesPerAmplification}</p>
+                {currentTeamNumbers.slice(3).map((teamNumber, index) => (
+                  <div key={index} className="team-input">
+                    <label>
+                      Team {index + 4}:
+                      <input
+                        type="text"
+                        value={teamNumber}
+                        onChange={(e) => handleTeamNumberChange(index + 3, e)}
+                      />
+                    </label>
                   </div>
-                ) : (
-                  <p>No data available for calculations</p>
-                )}
+                ))}
               </div>
-            </>
+              <button type="submit" className="calculate-button">Calculate</button>
+            </form>
+          )}
+          {redResults && blueResults && (
+            <div className="results-section">
+              <div className="alliance-results">
+                <h3>Red Alliance Results</h3>
+                <p>Total Speaker Notes: {redResults.totalNotesSpeaker}</p>
+                <p>Total AMP Notes: {redResults.totalNotesAmp}</p>
+                <p>Full Amplification Cycles: {redResults.fullAmplificationCycles}</p>
+                <p>Partial Amplification Cycles: {redResults.partialAmplificationCycles} (Speaker Notes: {redResults.speakerInPartialCycle})</p>
+                <p>Remaining AMP Notes: {redResults.remainingAmp}</p>
+                <p>Remaining Speaker Notes: {redResults.remainingSpeaker}</p>
+                <p>Potential Points: {redResults.potentialPoints}</p>
+              </div>
+              <div className="alliance-results">
+                <h3>Blue Alliance Results</h3>
+                <p>Total Speaker Notes: {blueResults.totalNotesSpeaker}</p>
+                <p>Total AMP Notes: {blueResults.totalNotesAmp}</p>
+                <p>Full Amplification Cycles: {blueResults.fullAmplificationCycles}</p>
+                <p>Partial Amplification Cycles: {blueResults.partialAmplificationCycles} (Speaker Notes: {blueResults.speakerInPartialCycle})</p>
+                <p>Remaining AMP Notes: {blueResults.remainingAmp}</p>
+                <p>Remaining Speaker Notes: {blueResults.remainingSpeaker}</p>
+                <p>Potential Points: {blueResults.potentialPoints}</p>
+              </div>
+              <div className="progress-bar">
+                <div className="progress red" style={{ width: `${(redResults.potentialPoints / (redResults.potentialPoints + blueResults.potentialPoints)) * 100}%` }}>
+                  {redResults.potentialPoints} pts
+                </div>
+                <div className="progress blue" style={{ width: `${(blueResults.potentialPoints / (redResults.potentialPoints + blueResults.potentialPoints)) * 100}%` }}>
+                  {blueResults.potentialPoints} pts
+                </div>
+              </div>
+            </div>
           )}
         </div>
       )}
