@@ -379,6 +379,10 @@ const CanvasComponent = () => {
     );
   };
 
+  const handleTeamClick = (teamColor) => {
+    setColor(teamColor);
+  };
+
   return (
     <div className="canvas-container">
       <div className="controls">
@@ -398,14 +402,6 @@ const CanvasComponent = () => {
         </select>
         <button onClick={handleUndo}>Undo</button>
         <button onClick={handleRedo}>Redo</button>
-        <div className="color-control">
-          <label>Brush Color: </label>
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-          />
-        </div>
         <div className="size-control">
           <label>Brush Size: </label>
           <input
@@ -461,6 +457,7 @@ const CanvasComponent = () => {
               fontSize={30} // Increased font size
               fontStyle="bold" // Bold text
               fill={team.color}
+              onClick={() => handleTeamClick(team.color)} // Change brush color on team click
             />
           ))}
         </Layer>
