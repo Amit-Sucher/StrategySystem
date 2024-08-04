@@ -15,8 +15,10 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
     const [loading, setLoading] = useState(false);
     const [selectedAlliance, setSelectedAlliance] = useState('blue'); // Red or Blue alliance
     const heatmapContainerRef = useRef(null);
-    const heatmapDotInstancesRef = useRef({});
-    const heatmapCloudInstancesRef = useRef({});
+    const heatmapSpeakerInstancesRef = useRef({});
+    const heatmapMissedInstancesRef = useRef({});
+    const heatmapAutoNotesInstancesRef = useRef({});
+    const heatmapDotInstancesRef = useRef({}); // Ensure dots are rendered last
 
     const fetchData = async (sheetType) => {
         setLoading(true);
@@ -91,13 +93,75 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
 
     useEffect(() => {
         if (heatmapContainerRef.current) {
+            Object.values(heatmapSpeakerInstancesRef.current).forEach((instance) => instance.setData({ max: 1, data: [] }));
+            Object.values(heatmapMissedInstancesRef.current).forEach((instance) => instance.setData({ max: 1, data: [] }));
+            Object.values(heatmapAutoNotesInstancesRef.current).forEach((instance) => instance.setData({ max: 1, data: [] }));
             Object.values(heatmapDotInstancesRef.current).forEach((instance) => instance.setData({ max: 1, data: [] }));
-            Object.values(heatmapCloudInstancesRef.current).forEach((instance) => instance.setData({ max: 1, data: [] }));
 
             teamNumbers.forEach((team) => {
+                if (!heatmapSpeakerInstancesRef.current[team]) {
+                    heatmapSpeakerInstancesRef.current[team] = createCustomHeatmap(heatmapContainerRef.current, {
+                        radius: 20,
+                        maxOpacity: 0.6,
+                        minOpacity: 0.1,
+                        blur: 0.9,
+                        gradient: {
+                            0.0: 'green',
+                            1.0: 'green',
+                        },
+                    });
+                } else {
+                    heatmapSpeakerInstancesRef.current[team].configure({
+                        gradient: {
+                            0.0: 'green',
+                            1.0: 'green',
+                        },
+                    });
+                }
+
+                if (!heatmapMissedInstancesRef.current[team]) {
+                    heatmapMissedInstancesRef.current[team] = createCustomHeatmap(heatmapContainerRef.current, {
+                        radius: 20,
+                        maxOpacity: 0.6,
+                        minOpacity: 0.1,
+                        blur: 0.9,
+                        gradient: {
+                            0.0: 'red',
+                            1.0: 'red',
+                        },
+                    });
+                } else {
+                    heatmapMissedInstancesRef.current[team].configure({
+                        gradient: {
+                            0.0: 'red',
+                            1.0: 'red',
+                        },
+                    });
+                }
+
+                if (!heatmapAutoNotesInstancesRef.current[team]) {
+                    heatmapAutoNotesInstancesRef.current[team] = createCustomHeatmap(heatmapContainerRef.current, {
+                        radius: 20,
+                        maxOpacity: 0.6,
+                        minOpacity: 0.1,
+                        blur: 0.9,
+                        gradient: {
+                            0.0: 'blue',
+                            1.0: 'blue',
+                        },
+                    });
+                } else {
+                    heatmapAutoNotesInstancesRef.current[team].configure({
+                        gradient: {
+                            0.0: 'blue',
+                            1.0: 'blue',
+                        },
+                    });
+                }
+
                 if (!heatmapDotInstancesRef.current[team]) {
                     heatmapDotInstancesRef.current[team] = createCustomHeatmap(heatmapContainerRef.current, {
-                        radius: 3,
+                        radius: 5, // Smaller dot size
                         maxOpacity: 1,
                         minOpacity: 1,
                         blur: 0,
@@ -114,26 +178,6 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
                         },
                     });
                 }
-
-                if (!heatmapCloudInstancesRef.current[team]) {
-                    heatmapCloudInstancesRef.current[team] = createCustomHeatmap(heatmapContainerRef.current, {
-                        radius: 20,
-                        maxOpacity: 0.6,
-                        minOpacity: 0.1,
-                        blur: 0.9,
-                        gradient: {
-                            0.0: teamColors[team] || '#00FF00',
-                            1.0: teamColors[team] || '#00FF00',
-                        },
-                    });
-                } else {
-                    heatmapCloudInstancesRef.current[team].configure({
-                        gradient: {
-                            0.0: teamColors[team] || '#00FF00',
-                            1.0: teamColors[team] || '#00FF00',
-                        },
-                    });
-                }
             });
         }
     }, [teamColors]);
@@ -144,17 +188,17 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
     };
 
     const parseMapData = (mapString) => {
-        const coordinatePairs = mapString.match(/\(\d+,\d+\)/g);
+        const coordinatePairs = mapString.match(/\(\d+:\d+\)/g); // Updated regex to match the new coordinate format
         if (!coordinatePairs) throw new Error('Invalid map data format');
 
         return coordinatePairs.map((pair) => {
-            const [x, y] = pair.slice(1, -1).split(',').map(Number);
+            const [x, y] = pair.slice(1, -1).split(':').map(Number); // Updated to split by ':'
             return { x, y, value: 1 };
         });
     };
 
     const updateHeatmap = (teamsData) => {
-        if (!heatmapDotInstancesRef.current || !heatmapCloudInstancesRef.current) return;
+        if (!heatmapDotInstancesRef.current || !heatmapSpeakerInstancesRef.current || !heatmapMissedInstancesRef.current || !heatmapAutoNotesInstancesRef.current) return;
 
         const fieldWidth = 10;
         const fieldHeight = 10;
@@ -169,24 +213,32 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
             }));
         };
 
+        Object.values(heatmapSpeakerInstancesRef.current).forEach((instance) => instance.setData({ max: 1, data: [] }));
+        Object.values(heatmapMissedInstancesRef.current).forEach((instance) => instance.setData({ max: 1, data: [] }));
+        Object.values(heatmapAutoNotesInstancesRef.current).forEach((instance) => instance.setData({ max: 1, data: [] }));
         Object.values(heatmapDotInstancesRef.current).forEach((instance) => instance.setData({ max: 1, data: [] }));
-        Object.values(heatmapCloudInstancesRef.current).forEach((instance) => instance.setData({ max: 1, data: [] }));
 
         teamsData.forEach((team) => {
-            if (team && team.map) {
-                const coords = parseMapData(team.map);
-                const imageCoordinates = mapCoordinatesToImage(coords, imageWidth, imageHeight, fieldWidth, fieldHeight);
+            if (team) {
+                const speakerCoords = team['Speaker Coordinates'] ? parseMapData(team['Speaker Coordinates']) : [];
+                const missedCoords = team['Missed Coordinates'] ? parseMapData(team['Missed Coordinates']) : [];
+                const autoNotesCoords = team['Auto Picked Notes Coordinates'] ? parseMapData(team['Auto Picked Notes Coordinates']) : [];
 
-                const data = {
-                    max: 1,
-                    data: imageCoordinates,
-                };
+                const speakerImageCoords = mapCoordinatesToImage(speakerCoords, imageWidth, imageHeight, fieldWidth, fieldHeight);
+                const missedImageCoords = mapCoordinatesToImage(missedCoords, imageWidth, imageHeight, fieldWidth, fieldHeight);
+                const autoNotesImageCoords = mapCoordinatesToImage(autoNotesCoords, imageWidth, imageHeight, fieldWidth, fieldHeight);
 
-                if (heatmapDotInstancesRef.current[team['Teams']]) {
-                    heatmapDotInstancesRef.current[team['Teams']].setData(data);
+                if (heatmapSpeakerInstancesRef.current[team['Teams']]) {
+                    heatmapSpeakerInstancesRef.current[team['Teams']].setData({ max: 1, data: speakerImageCoords });
                 }
-                if (heatmapCloudInstancesRef.current[team['Teams']]) {
-                    heatmapCloudInstancesRef.current[team['Teams']].setData(data);
+                if (heatmapMissedInstancesRef.current[team['Teams']]) {
+                    heatmapMissedInstancesRef.current[team['Teams']].setData({ max: 1, data: missedImageCoords });
+                }
+                if (heatmapAutoNotesInstancesRef.current[team['Teams']]) {
+                    heatmapAutoNotesInstancesRef.current[team['Teams']].setData({ max: 1, data: autoNotesImageCoords });
+                }
+                if (heatmapDotInstancesRef.current[team['Teams']]) {
+                    heatmapDotInstancesRef.current[team['Teams']].setData({ max: 1, data: [...speakerImageCoords, ...missedImageCoords, ...autoNotesImageCoords] });
                 }
             }
         });
@@ -303,12 +355,12 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
                                     <div className="grid-item">
                                         <span>Missed Shots</span>
                                         <span>{teamData[index]?.['Missed Shots']}</span>
-                                </div>
+                                    </div>
                                     <div className="grid-item">
                                         <span>Shot to Trap</span>
                                         <span>{teamData[index]?.['Shot to Trap']}</span>
                                     </div>
-                                    </div>
+                                </div>
                                 <div className="section-header">General</div>
                                 <div className="grid-container">
                                     <div className="grid-item">
