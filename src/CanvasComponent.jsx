@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Stage, Layer, Image, Line, Text } from 'react-konva';
-import { LinearProgress, Box, Typography } from '@mui/material';
+import { LinearProgress, Typography } from '@mui/material';
 import Papa from 'papaparse';
-import h337 from 'heatmap.js';
 import useImage from 'use-image';
 
 const CanvasComponent = () => {
@@ -19,8 +18,6 @@ const CanvasComponent = () => {
   const isErasing = useRef(false);
 
   const stageRef = useRef();
-  const heatmapContainerRef = useRef(null);
-  const heatmapInstanceRef = useRef(null);
 
   const initialEventKey = '2024isde1';
   const [eventKey, setEventKey] = useState(initialEventKey);
@@ -69,15 +66,15 @@ const CanvasComponent = () => {
     const heightRatio = height / originalHeight;
 
     const bluePositions = [
-      { x: 135 * widthRatio, y: 200 * heightRatio },
-      { x: 135 * widthRatio, y: 600 * heightRatio },
-      { x: 135 * widthRatio, y: 800 * heightRatio }
+      { x: 135 * widthRatio, y: 300 * heightRatio },
+      { x: 135 * widthRatio, y: 620 * heightRatio },
+      { x: 135 * widthRatio, y: 810 * heightRatio }
     ];
 
     const redPositions = [
-      { x:  1700 * widthRatio, y: 200 * heightRatio },
-      { x:  1700 * widthRatio, y: 600 * heightRatio },
-      { x:  1700 * widthRatio, y: 800 * heightRatio }
+      { x: 1700 * widthRatio, y: 300 * heightRatio },
+      { x: 1700 * widthRatio, y: 620 * heightRatio },
+      { x: 1700 * widthRatio, y: 810 * heightRatio }
     ];
 
     return { bluePositions, redPositions };
@@ -129,9 +126,6 @@ const CanvasComponent = () => {
   const handleMouseMove = () => {
     const stage = stageRef.current;
     const pos = stage.getPointerPosition();
-
-    // Print mouse coordinates
-    console.log(`Mouse coordinates: x=${pos.x}, y=${pos.y}`);
 
     if (isErasing.current) {
       handleErase(pos);
@@ -214,7 +208,6 @@ const CanvasComponent = () => {
 
   const [data, setData] = useState([]);
   const [teamData, setTeamData] = useState(Array(6).fill(null));
-  const [teamColors, setTeamColors] = useState({});
   const [loading, setLoading] = useState(false);
   const [selectedAlliance, setSelectedAlliance] = useState('blue'); // Red or Blue alliance
 
@@ -254,95 +247,17 @@ const CanvasComponent = () => {
 
   useEffect(() => {
     fetchData('allMatches');
-    fetchTeamColors(teams.map(team => team.team));
 
     const intervalId = setInterval(() => fetchData('allMatches'), 60000); /* refresh every 60 seconds */
 
     return () => clearInterval(intervalId);
-  }, [teams]);
+  }, []);
 
   useEffect(() => {
     const newTeamData = teams.map(team => data.find(row => row['Teams'] === team.team) || null);
     setTeamData(newTeamData);
     fetchTeamColors(teams.map(team => team.team));
   }, [data, teams]);
-
-  useEffect(() => {
-    if (heatmapInstanceRef.current && teams.length > 0) {
-      updateHeatmap(teamData.filter((_, index) => selectedAlliance === 'blue' ? index < 3 : index >= 3));
-    }
-  }, [teamData, teamColors, selectedAlliance]);
-
-  const parseMapData = (mapString) => {
-    const coordinatePairs = mapString.match(/\(\d+,\d+\)/g);
-    if (!coordinatePairs) throw new Error('Invalid map data format');
-
-    return coordinatePairs.map((pair) => {
-      const [x, y] = pair.slice(1, -1).split(',').map(Number);
-      return { x, y, value: 1 };
-    });
-  };
-
-  const updateHeatmap = (teamsData) => {
-    if (!heatmapInstanceRef.current) return;
-
-    const fieldWidth = 10;
-    const fieldHeight = 10;
-    const stage = stageRef.current;
-    const imageWidth = stage.width();
-    const imageHeight = stage.height();
-
-    const mapCoordinatesToImage = (fieldCoords, imgWidth, imgHeight, fieldWidth, fieldHeight) => {
-      return fieldCoords.map((coord) => ({
-        x: (coord.x / fieldWidth) * imgWidth,
-        y: (coord.y / fieldHeight) * imgHeight,
-        value: 1,
-      }));
-    };
-
-    heatmapInstanceRef.current.setData({ max: 1, data: [] });
-
-    teamsData.forEach((team) => {
-      if (team && team.map) {
-        const coords = parseMapData(team.map);
-        const imageCoordinates = mapCoordinatesToImage(coords, imageWidth, imageHeight, fieldWidth, fieldHeight);
-
-        const data = {
-          max: 1,
-          data: imageCoordinates,
-        };
-
-        heatmapInstanceRef.current.addData(data.data);
-      }
-    });
-  };
-
-  const createHeatmapInstance = (container) => {
-    return h337.create({
-      container: container,
-      radius: 20,
-      maxOpacity: 0.6,
-      minOpacity: 0.1,
-      blur: 0.9,
-      gradient: {
-        0.0: 'blue',
-        1.0: 'red',
-      },
-    });
-  };
-
-  useEffect(() => {
-    if (!heatmapInstanceRef.current) {
-      heatmapInstanceRef.current = createHeatmapInstance(stageRef.current.content);
-    }
-
-    return () => {
-      if (heatmapInstanceRef.current) {
-        heatmapInstanceRef.current._renderer.canvas.parentNode.removeChild(heatmapInstanceRef.current._renderer.canvas);
-        heatmapInstanceRef.current = null;
-      }
-    };
-  }, []);
 
   const calculateTotalNotes = (team) => {
     return parseInt(team?.['SPEAKER AUTO'] || 0) + parseInt(team?.['tele Speaker'] || 0);
@@ -436,7 +351,14 @@ const CanvasComponent = () => {
         style={{ border: '1px solid black', position: 'relative' }}
       >
         <Layer>
-          <Image image={image} width={window.innerWidth} height={window.innerHeight} />
+          <Image
+            image={image}
+            x={0}
+            y={window.innerHeight * 0.1} // Adjust the y position to 10% from the top
+            width={window.innerWidth}
+            height={window.innerHeight * 0.9} // Adjust the height to fit the new position
+            draggable={false} // Ensures the image is not draggable
+          />
           {lines.map((line, i) => (
             <Line
               key={i}
@@ -474,7 +396,6 @@ const CanvasComponent = () => {
         </div>
       )}
       {renderProgressBars()}
-      <div id="heatmapContainer" className="heatmap-container" ref={heatmapContainerRef} />
       <style jsx>{`
         .canvas-container {
           display: flex;
@@ -530,10 +451,6 @@ const CanvasComponent = () => {
         }
         .progress-bar {
           margin-bottom: 1rem;
-        }
-        .heatmap-container {
-          width: 100%;
-          height: 500px;
         }
       `}</style>
     </div>
