@@ -285,47 +285,35 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
                                         <span>SPEAKER AUTO</span>
                                         <span>{teamData[index]?.['SPEAKER AUTO']}</span>
                                     </div>
-                                    <div className="grid-item">
-                                        <span>Mid Notes</span>
-                                        <span>{teamData[index]?.['mid notes']}</span>
-                                    </div>
                                 </div>
                                 <div className="section-header">Teleop</div>
                                 <div className="grid-container">
                                     <div className="grid-item">
-                                        <span>Tele AMP</span>
+                                        <span>tele AMP</span>
                                         <span>{teamData[index]?.['tele AMP']}</span>
                                     </div>
                                     <div className="grid-item">
-                                        <span>Missed AMP</span>
-                                        <span>{teamData[index]?.['Missed AMP']}</span>
-                                    </div>
-                                    <div className="grid-item">
-                                        <span>Tele Speaker</span>
+                                        <span>tele Speaker</span>
                                         <span>{teamData[index]?.['tele Speaker']}</span>
-                                    </div>
-                                    <div className="grid-item">
-                                        <span>Tele Missed Speaker</span>
-                                        <span>{teamData[index]?.['tele Missed Speaker']}</span>
                                     </div>
                                     <div className="grid-item">
                                         <span>Defensive Pins</span>
                                         <span>{teamData[index]?.['Defensive Pins']}</span>
                                     </div>
+                                    <div className="grid-item">
+                                        <span>Missed Shots</span>
+                                        <span>{teamData[index]?.['Missed Shots']}</span>
                                 </div>
-                                <div className="section-header">General</div>
-                                <div className="grid-container">
                                     <div className="grid-item">
                                         <span>Shot to Trap</span>
                                         <span>{teamData[index]?.['Shot to Trap']}</span>
                                     </div>
-                                    <div className="grid-item">
-                                        <span>Under Chain</span>
-                                        <span>{teamData[index]?.['Under Chain']}</span>
                                     </div>
+                                <div className="section-header">General</div>
+                                <div className="grid-container">
                                     <div className="grid-item">
-                                        <span>Long Shot</span>
-                                        <span>{teamData[index]?.['Long Shot']}</span>
+                                        <span>Climbed</span>
+                                        <span>{teamData[index]?.['Climbed']}</span>
                                     </div>
                                 </div>
                             </div>
@@ -350,7 +338,7 @@ function MultipleTeams({ teamNumbers, onTeamNumbersChange, dataType, onDataTypeC
             </div>
 
             <div className="pie-charts-container">
-                {['AMP AUTO', 'SPEAKER AUTO', 'mid notes', 'tele AMP', 'Missed AMP', 'tele Speaker', 'tele Missed Speaker', 'Defensive Pins', 'Shot to Trap', 'Under Chain', 'Long Shot'].map((key, index) => (
+                {['AMP AUTO', 'SPEAKER AUTO', 'tele AMP', 'tele Speaker', 'Defensive Pins', 'Missed Shots', 'Shot to Trap', 'Climbed'].map((key, index) => (
                     <div key={index} className="pie-chart">
                         <h4>{key}</h4>
                         <Pie data={generateChartData(key)} />
