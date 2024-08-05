@@ -13,11 +13,11 @@ import StrategyCalculator from './StrategyCalculator';
 import Papa from 'papaparse';
 
 function App() {
-    const [teamMode, setTeamMode] = useState('single');
-    const [singleTeamNumber, setSingleTeamNumber] = useState('');
-    const [multipleTeamNumbers, setMultipleTeamNumbers] = useState(Array(6).fill(''));
-    const [comparisonTeamNumbers, setComparisonTeamNumbers] = useState(['', '']);
-    const [dataType, setDataType] = useState('average');
+    const [teamMode, setTeamMode] = useState(localStorage.getItem('teamMode') || 'single');
+    const [singleTeamNumber, setSingleTeamNumber] = useState(localStorage.getItem('singleTeamNumber') || '');
+    const [multipleTeamNumbers, setMultipleTeamNumbers] = useState(JSON.parse(localStorage.getItem('multipleTeamNumbers')) || Array(6).fill(''));
+    const [comparisonTeamNumbers, setComparisonTeamNumbers] = useState(JSON.parse(localStorage.getItem('comparisonTeamNumbers')) || ['', '']);
+    const [dataType, setDataType] = useState(localStorage.getItem('dataType') || 'average');
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [calculatedData, setCalculatedData] = useState([]);
@@ -26,26 +26,31 @@ function App() {
     const handleTeamModeChange = (mode) => {
         setTeamMode(mode);
         setMenuOpen(false);
+        localStorage.setItem('teamMode', mode);
     };
 
     const handleSingleTeamNumberChange = (teamNumber) => {
         setSingleTeamNumber(teamNumber);
+        localStorage.setItem('singleTeamNumber', teamNumber);
     };
 
     const handleMultipleTeamNumbersChange = (index, teamNumber) => {
         const newTeamNumbers = [...multipleTeamNumbers];
         newTeamNumbers[index] = teamNumber;
         setMultipleTeamNumbers(newTeamNumbers);
+        localStorage.setItem('multipleTeamNumbers', JSON.stringify(newTeamNumbers));
     };
 
     const handleComparisonTeamNumbersChange = (index, teamNumber) => {
         const newTeamNumbers = [...comparisonTeamNumbers];
         newTeamNumbers[index] = teamNumber;
         setComparisonTeamNumbers(newTeamNumbers);
+        localStorage.setItem('comparisonTeamNumbers', JSON.stringify(newTeamNumbers));
     };
 
     const handleDataTypeChange = (event) => {
         setDataType(event.target.value);
+        localStorage.setItem('dataType', event.target.value);
     };
 
     const fetchData = async (sheetType) => {
