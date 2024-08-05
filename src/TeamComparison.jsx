@@ -15,8 +15,10 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
     const [loading, setLoading] = useState(false);
     const [selectedField, setSelectedField] = useState('AMP AUTO');
     const heatmapContainerRef = useRef(null);
+    const heatmapSpeakerInstancesRef = useRef([null, null]);
+    const heatmapMissedInstancesRef = useRef([null, null]);
+    const heatmapAutoNotesInstancesRef = useRef([null, null]);
     const heatmapDotInstancesRef = useRef([null, null]);
-    const heatmapCloudInstancesRef = useRef([null, null]);
 
     const fetchData = async (sheetType) => {
         setLoading(true);
@@ -106,17 +108,83 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
 
     useEffect(() => {
         if (heatmapContainerRef.current) {
-            heatmapDotInstancesRef.current.forEach((instance, index) => {
+            heatmapSpeakerInstancesRef.current.forEach((instance, index) => {
                 if (instance) instance.setData({ max: 1, data: [] });
             });
-            heatmapCloudInstancesRef.current.forEach((instance, index) => {
+            heatmapMissedInstancesRef.current.forEach((instance, index) => {
+                if (instance) instance.setData({ max: 1, data: [] });
+            });
+            heatmapAutoNotesInstancesRef.current.forEach((instance, index) => {
+                if (instance) instance.setData({ max: 1, data: [] });
+            });
+            heatmapDotInstancesRef.current.forEach((instance, index) => {
                 if (instance) instance.setData({ max: 1, data: [] });
             });
 
             teamNumbers.forEach((teamNumber, index) => {
+                if (!heatmapSpeakerInstancesRef.current[index]) {
+                    heatmapSpeakerInstancesRef.current[index] = createCustomHeatmap(heatmapContainerRef.current, {
+                        radius: 20,
+                        maxOpacity: 0.6,
+                        minOpacity: 0.1,
+                        blur: 0.9,
+                        gradient: {
+                            0.0: 'green',
+                            1.0: 'green',
+                        },
+                    });
+                } else {
+                    heatmapSpeakerInstancesRef.current[index].configure({
+                        gradient: {
+                            0.0: 'green',
+                            1.0: 'green',
+                        },
+                    });
+                }
+
+                if (!heatmapMissedInstancesRef.current[index]) {
+                    heatmapMissedInstancesRef.current[index] = createCustomHeatmap(heatmapContainerRef.current, {
+                        radius: 20,
+                        maxOpacity: 0.6,
+                        minOpacity: 0.1,
+                        blur: 0.9,
+                        gradient: {
+                            0.0: 'red',
+                            1.0: 'red',
+                        },
+                    });
+                } else {
+                    heatmapMissedInstancesRef.current[index].configure({
+                        gradient: {
+                            0.0: 'red',
+                            1.0: 'red',
+                        },
+                    });
+                }
+
+                if (!heatmapAutoNotesInstancesRef.current[index]) {
+                    heatmapAutoNotesInstancesRef.current[index] = createCustomHeatmap(heatmapContainerRef.current, {
+                        radius: 20,
+                        maxOpacity: 0.6,
+                        minOpacity: 0.1,
+                        blur: 0.9,
+                        gradient: {
+                            0.0: 'blue',
+                            1.0: 'blue',
+                        },
+                    });
+                } else {
+                    heatmapAutoNotesInstancesRef.current[index].configure({
+                        gradient: {
+                            0.0: 'blue',
+                            1.0: 'blue',
+                        },
+                    });
+                }
+
                 if (!heatmapDotInstancesRef.current[index]) {
                     heatmapDotInstancesRef.current[index] = createCustomHeatmap(heatmapContainerRef.current, {
-                        radius: 3,
+                        radius: 5,
                         maxOpacity: 1,
                         minOpacity: 1,
                         blur: 0,
@@ -127,26 +195,6 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
                     });
                 } else {
                     heatmapDotInstancesRef.current[index].configure({
-                        gradient: {
-                            0.0: teamColors[teamNumber] || '#00FF00',
-                            1.0: teamColors[teamNumber] || '#00FF00',
-                        },
-                    });
-                }
-
-                if (!heatmapCloudInstancesRef.current[index]) {
-                    heatmapCloudInstancesRef.current[index] = createCustomHeatmap(heatmapContainerRef.current, {
-                        radius: 20,
-                        maxOpacity: 0.6,
-                        minOpacity: 0.1,
-                        blur: 0.9,
-                        gradient: {
-                            0.0: teamColors[teamNumber] || '#00FF00',
-                            1.0: teamColors[teamNumber] || '#00FF00',
-                        },
-                    });
-                } else {
-                    heatmapCloudInstancesRef.current[index].configure({
                         gradient: {
                             0.0: teamColors[teamNumber] || '#00FF00',
                             1.0: teamColors[teamNumber] || '#00FF00',
@@ -167,17 +215,17 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
     };
 
     const parseMapData = (mapString) => {
-        const coordinatePairs = mapString.match(/\(\d+,\d+\)/g);
+        const coordinatePairs = mapString.match(/\(\d+:\d+\)/g); // Updated regex to match the new coordinate format
         if (!coordinatePairs) throw new Error('Invalid map data format');
 
         return coordinatePairs.map((pair) => {
-            const [x, y] = pair.slice(1, -1).split(',').map(Number);
+            const [x, y] = pair.slice(1, -1).split(':').map(Number); // Updated to split by ':'
             return { x, y, value: 1 };
         });
     };
 
     const updateHeatmap = (teamData, index) => {
-        if (!heatmapDotInstancesRef.current[index] || !heatmapCloudInstancesRef.current[index]) return;
+        if (!heatmapDotInstancesRef.current[index] || !heatmapSpeakerInstancesRef.current[index] || !heatmapMissedInstancesRef.current[index] || !heatmapAutoNotesInstancesRef.current[index]) return;
 
         const fieldWidth = 10;
         const fieldHeight = 10;
@@ -192,20 +240,26 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
             }));
         };
 
-        if (teamData && teamData.map) {
-            const coords = parseMapData(teamData.map);
-            const imageCoordinates = mapCoordinatesToImage(coords, imageWidth, imageHeight, fieldWidth, fieldHeight);
+        if (teamData) {
+            const speakerCoords = teamData['Speaker Coordinates'] ? parseMapData(teamData['Speaker Coordinates']) : [];
+            const missedCoords = teamData['Missed Coordinates'] ? parseMapData(teamData['Missed Coordinates']) : [];
+            const autoNotesCoords = teamData['Auto Picked Notes Coordinates'] ? parseMapData(teamData['Auto Picked Notes Coordinates']) : [];
 
-            const data = {
-                max: 1,
-                data: imageCoordinates,
-            };
+            const speakerImageCoords = mapCoordinatesToImage(speakerCoords, imageWidth, imageHeight, fieldWidth, fieldHeight);
+            const missedImageCoords = mapCoordinatesToImage(missedCoords, imageWidth, imageHeight, fieldWidth, fieldHeight);
+            const autoNotesImageCoords = mapCoordinatesToImage(autoNotesCoords, imageWidth, imageHeight, fieldWidth, fieldHeight);
 
-            if (heatmapDotInstancesRef.current[index]) {
-                heatmapDotInstancesRef.current[index].setData(data);
+            if (heatmapSpeakerInstancesRef.current[index]) {
+                heatmapSpeakerInstancesRef.current[index].setData({ max: 1, data: speakerImageCoords });
             }
-            if (heatmapCloudInstancesRef.current[index]) {
-                heatmapCloudInstancesRef.current[index].setData(data);
+            if (heatmapMissedInstancesRef.current[index]) {
+                heatmapMissedInstancesRef.current[index].setData({ max: 1, data: missedImageCoords });
+            }
+            if (heatmapAutoNotesInstancesRef.current[index]) {
+                heatmapAutoNotesInstancesRef.current[index].setData({ max: 1, data: autoNotesImageCoords });
+            }
+            if (heatmapDotInstancesRef.current[index]) {
+                heatmapDotInstancesRef.current[index].setData({ max: 1, data: [...speakerImageCoords, ...missedImageCoords, ...autoNotesImageCoords] });
             }
         }
     };
@@ -289,47 +343,35 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
                                     <span>SPEAKER AUTO</span>
                                     <span>{teamData[0]?.['SPEAKER AUTO']}</span>
                                 </div>
-                                <div className="grid-item">
-                                    <span>Mid Notes</span>
-                                    <span>{teamData[0]?.['mid notes']}</span>
-                                </div>
                             </div>
                             <div className="section-header">Teleop</div>
                             <div className="grid-container">
                                 <div className="grid-item">
-                                    <span>Tele AMP</span>
+                                    <span>tele AMP</span>
                                     <span>{teamData[0]?.['tele AMP']}</span>
                                 </div>
                                 <div className="grid-item">
-                                    <span>Missed AMP</span>
-                                    <span>{teamData[0]?.['Missed AMP']}</span>
-                                </div>
-                                <div className="grid-item">
-                                    <span>Tele Speaker</span>
+                                    <span>tele Speaker</span>
                                     <span>{teamData[0]?.['tele Speaker']}</span>
-                                </div>
-                                <div className="grid-item">
-                                    <span>Tele Missed Speaker</span>
-                                    <span>{teamData[0]?.['tele Missed Speaker']}</span>
                                 </div>
                                 <div className="grid-item">
                                     <span>Defensive Pins</span>
                                     <span>{teamData[0]?.['Defensive Pins']}</span>
                                 </div>
-                            </div>
-                            <div className="section-header">General</div>
-                            <div className="grid-container">
+                                <div className="grid-item">
+                                    <span>Missed Shots</span>
+                                    <span>{teamData[0]?.['Missed Shots']}</span>
+                                </div>
                                 <div className="grid-item">
                                     <span>Shot to Trap</span>
                                     <span>{teamData[0]?.['Shot to Trap']}</span>
                                 </div>
+                            </div>
+                            <div className="section-header">General</div>
+                            <div className="grid-container">
                                 <div className="grid-item">
-                                    <span>Under Chain</span>
-                                    <span>{teamData[0]?.['Under Chain']}</span>
-                                </div>
-                                <div className="grid-item">
-                                    <span>Long Shot</span>
-                                    <span>{teamData[0]?.['Long Shot']}</span>
+                                    <span>Climbed</span>
+                                    <span>{teamData[0]?.['Climbed']}</span>
                                 </div>
                             </div>
                         </div>
@@ -355,47 +397,35 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
                                     <span>SPEAKER AUTO</span>
                                     <span>{teamData[1]?.['SPEAKER AUTO']}</span>
                                 </div>
-                                <div className="grid-item">
-                                    <span>Mid Notes</span>
-                                    <span>{teamData[1]?.['mid notes']}</span>
-                                </div>
                             </div>
                             <div className="section-header">Teleop</div>
                             <div className="grid-container">
                                 <div className="grid-item">
-                                    <span>Tele AMP</span>
+                                    <span>tele AMP</span>
                                     <span>{teamData[1]?.['tele AMP']}</span>
                                 </div>
                                 <div className="grid-item">
-                                    <span>Missed AMP</span>
-                                    <span>{teamData[1]?.['Missed AMP']}</span>
-                                </div>
-                                <div className="grid-item">
-                                    <span>Tele Speaker</span>
+                                    <span>tele Speaker</span>
                                     <span>{teamData[1]?.['tele Speaker']}</span>
-                                </div>
-                                <div className="grid-item">
-                                    <span>Tele Missed Speaker</span>
-                                    <span>{teamData[1]?.['tele Missed Speaker']}</span>
                                 </div>
                                 <div className="grid-item">
                                     <span>Defensive Pins</span>
                                     <span>{teamData[1]?.['Defensive Pins']}</span>
                                 </div>
-                            </div>
-                            <div className="section-header">General</div>
-                            <div className="grid-container">
+                                <div className="grid-item">
+                                    <span>Missed Shots</span>
+                                    <span>{teamData[1]?.['Missed Shots']}</span>
+                                </div>
                                 <div className="grid-item">
                                     <span>Shot to Trap</span>
                                     <span>{teamData[1]?.['Shot to Trap']}</span>
                                 </div>
+                            </div>
+                            <div className="section-header">General</div>
+                            <div className="grid-container">
                                 <div className="grid-item">
-                                    <span>Under Chain</span>
-                                    <span>{teamData[1]?.['Under Chain']}</span>
-                                </div>
-                                <div className="grid-item">
-                                    <span>Long Shot</span>
-                                    <span>{teamData[1]?.['Long Shot']}</span>
+                                    <span>Climbed</span>
+                                    <span>{teamData[1]?.['Climbed']}</span>
                                 </div>
                             </div>
                         </div>
@@ -409,13 +439,12 @@ function TeamComparison({ teamNumbers, onTeamNumbersChange, dataType, onDataType
                 <select value={selectedField} onChange={handleFieldChange}>
                     <option value="AMP AUTO">Auto AMP</option>
                     <option value="SPEAKER AUTO">Auto Speaker</option>
-                    <option value="mid notes">Mid Notes</option>
                     <option value="tele AMP">Tele AMP</option>
-                    <option value="Missed AMP">Missed AMP</option>
                     <option value="tele Speaker">Tele Speaker</option>
-                    <option value="tele Missed Speaker">Tele Missed Speaker</option>
                     <option value="Defensive Pins">Defensive Pins</option>
+                    <option value="Missed Shots">Missed Shots</option>
                     <option value="Shot to Trap">Shot to Trap</option>
+                    <option value="Climbed">Climbed</option>
                 </select>
             </div>
             <div className="chart-container">
